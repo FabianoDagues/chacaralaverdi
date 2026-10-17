@@ -1,0 +1,9 @@
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{{ receipt.number }}</title><link rel="stylesheet" href="/static/style.css"></head><body class="print-body">
+<div class="print-toolbar no-print"><button class="btn primary" onclick="window.print()">Imprimir / Salvar PDF</button><button class="btn secondary" onclick="window.close()">Fechar</button></div>
+<section class="receipt-sheet">
+<header class="document-header">{% if company and company.logo_data %}<img class="document-logo" src="/empresa/logo" alt="Logo">{% endif %}<div><h2>{{ company.trade_name if company else app_name }}</h2>{% if company %}<div>{{ company.legal_name }}</div><div>{{ company.document or '' }}</div><div>{{ company.address or '' }} {{ company.city or '' }}/{{ company.state or '' }}</div>{% endif %}</div><div class="right"><b>RECIBO</b><br>{{ receipt.number }}<br>{{ receipt.payment_date.strftime('%d/%m/%Y') }}</div></header>
+<p>Recebemos de <b>{{ receipt.client.trade_name or receipt.client.company_name }}</b> a importância total de <b>{{ receipt.total|brl }}</b>, referente aos títulos relacionados abaixo.</p>
+<table><thead><tr><th>Pedido</th><th>Data do pedido</th><th>Vencimento</th><th>Valor baixado</th></tr></thead><tbody>{% for i in receipt.items %}<tr><td>{{ i.order_number }}</td><td>{{ i.order_date.strftime('%d/%m/%Y') }}</td><td>{{ i.due_date.strftime('%d/%m/%Y') }}</td><td>{{ i.amount|brl }}</td></tr>{% endfor %}</tbody><tfoot><tr><td colspan="3">TOTAL RECEBIDO</td><td>{{ receipt.total|brl }}</td></tr></tfoot></table>
+<p><b>Forma de pagamento:</b> {{ receipt.payment_method or '-' }}</p>{% if receipt.notes %}<p><b>Observação:</b> {{ receipt.notes }}</p>{% endif %}
+<p class="signature">Responsável pela baixa: {{ receipt.operator.name if receipt.operator else '-' }}<br><br>Assinatura: ____________________________________________</p>
+</section></body></html>

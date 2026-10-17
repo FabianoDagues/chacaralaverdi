@@ -1,0 +1,26 @@
+{% extends 'base.html' %}{% block title %}Cadastro de cliente{% endblock %}
+{% block content %}
+{% if company and company.logo_data %}<div class="login-logo"><img src="/empresa/logo" alt="Logo da empresa"></div>{% endif %}
+<div class="page-head signup-head"><div><h1>Primeiro cadastro</h1><p>Preencha seus dados uma única vez. Depois você acessará os pedidos com seu e-mail e sua própria senha.</p></div><a class="btn secondary" href="/cliente/login">Já tenho cadastro</a></div>
+<form method="post" class="panel form-grid two-cols signup-form">
+  <div class="span-2 provisional-box"><b>1. Validação da horta</b><p>Digite a senha/código provisório que a horta forneceu para você.</p><label>Senha/código provisório<input type="password" name="provisional_code" required autofocus autocomplete="one-time-code"></label></div>
+  <div class="span-2 section-divider"><h2>2. Seus dados</h2></div>
+  <label>Razão social / Nome<input name="company_name" required></label>
+  <label>Nome fantasia<input name="trade_name"></label>
+  <label>CPF/CNPJ<input name="document"></label>
+  <label>Contato<input name="contact_name"></label>
+  <label>E-mail de login<input type="email" name="email" required autocomplete="email"></label>
+  <label>Telefone<input name="phone"></label>
+  <label>WhatsApp<input name="whatsapp" placeholder="44 99999-9999"></label>
+  <label>CEP<input name="zip_code"></label>
+  <label class="span-2">Endereço<input name="address"></label>
+  <label>Cidade<input name="city"></label>
+  <label>UF<input name="state" maxlength="2" value="PR"></label>
+  <div class="span-2 section-divider"><h2>3. Crie sua senha</h2></div>
+  <label>Nova senha<input type="password" name="password" minlength="8" required autocomplete="new-password"></label>
+  <label>Confirmar nova senha<input type="password" name="password2" minlength="8" required autocomplete="new-password"></label>
+  <label class="check span-2"><input type="checkbox" name="reminder_enabled" checked> Quero receber lembretes de pedido no WhatsApp</label>
+  {% if company.self_registration_requires_approval %}<div class="alert warning span-2">Após enviar o cadastro, a horta precisará aprová-lo antes do seu primeiro pedido.</div>{% else %}<div class="alert info span-2">Ao concluir o cadastro, você será direcionado diretamente para a tela de pedido.</div>{% endif %}
+  <div class="form-actions"><button class="btn primary">Concluir cadastro e continuar</button></div>
+</form>
+{% endblock %}
