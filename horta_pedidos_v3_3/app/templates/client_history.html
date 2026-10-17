@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block title %}Meus pedidos{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>Meus pedidos</h1><p>Histórico dos últimos pedidos de {{ client.trade_name or client.company_name }}.</p></div><a class="btn primary" href="/cliente/pedido">Pedido de amanhã</a></div>
+{% for o in orders %}
+<section class="panel">
+  <div class="page-head">
+    <div><b>{{ o.number }}</b><small>Entrega {{ o.delivery_date.strftime('%d/%m/%Y') }}</small></div>
+    <div class="actions"><strong>{{ o.total|brl }}</strong><a class="btn secondary tiny" href="/cliente/pedidos/{{ o.id }}">Ver / imprimir</a>{% if client_order_can_change(o) %}<a class="btn primary tiny" href="/cliente/pedido">Editar</a>{% endif %}</div>
+  </div>
+  <div class="table-wrap"><table><thead><tr><th>Produto</th><th>Qtd.</th><th>Preço</th><th>Total</th></tr></thead><tbody>{% for i in o.items %}<tr><td>{{ i.product.name }}</td><td>{{ i.quantity|int }} {{ i.product.unit }}</td><td>{{ i.unit_price|brl }}</td><td>{{ i.total|brl }}</td></tr>{% endfor %}</tbody></table></div>
+</section>
+{% else %}<div class="panel empty">Nenhum pedido realizado ainda.</div>{% endfor %}
+{% endblock %}

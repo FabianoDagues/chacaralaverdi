@@ -1,0 +1,19 @@
+{% extends 'base.html' %}{% block title %}Empresa{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>Cadastro da empresa</h1><p>Esses dados aparecem em romaneios, recibos e relatórios.</p></div></div>
+<form class="panel form-grid" method="post" enctype="multipart/form-data">
+  <label>Nome fantasia<input name="trade_name" value="{{ company.trade_name or '' }}" required></label>
+  <label>Razão social<input name="legal_name" value="{{ company.legal_name or '' }}" required></label>
+  <label>CNPJ / CPF<input name="document" value="{{ company.document or '' }}"></label>
+  <label>E-mail<input type="email" name="email" value="{{ company.email or '' }}"></label>
+  <label>Telefone<input name="phone" value="{{ company.phone or '' }}"></label>
+  <label>WhatsApp<input name="whatsapp" value="{{ company.whatsapp or '' }}"></label>
+  <label class="span-2">Endereço<input name="address" value="{{ company.address or '' }}"></label>
+  <label>Cidade<input name="city" value="{{ company.city or '' }}"></label>
+  <label>UF<input name="state" maxlength="2" value="{{ company.state or '' }}"></label>
+  <label>CEP<input name="zip_code" value="{{ company.zip_code or '' }}"></label>
+  <label class="span-2">Logo da empresa<input type="file" name="logo" accept="image/png,image/jpeg,image/webp"><small>PNG, JPG/JPEG ou WebP, até 2 MB.</small></label>
+  {% if company.logo_data %}<div class="span-2 logo-preview"><img src="/empresa/logo" alt="Logo"><label class="check"><input type="checkbox" name="remove_logo"> Remover logo atual</label></div>{% endif %}
+  <div class="span-2 actions"><button class="btn primary">Salvar dados da empresa</button></div>
+</form>
+{% endblock %}

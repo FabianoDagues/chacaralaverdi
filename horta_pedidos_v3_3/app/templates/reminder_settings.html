@@ -1,0 +1,15 @@
+{% extends 'base.html' %}{% block title %}Lembretes de pedido{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>Lembretes automáticos</h1><p>Avise automaticamente clientes que ainda não fizeram pedido para o próximo dia.</p></div></div>
+{% if not whatsapp_ready %}<div class="alert warning"><b>Envio automático ainda não está conectado à API oficial do WhatsApp.</b> Você pode configurar horários agora; os botões manuais do Dashboard continuam funcionando. Para disparo automático, configure as variáveis da WhatsApp Business Cloud API no Railway.</div>{% endif %}
+<form method="post" class="panel form-grid">
+  <label class="check span-2"><input type="checkbox" name="enabled" {% if settings.enabled %}checked{% endif %}> Ativar envio automático</label>
+  <label>Horário do primeiro aviso<input type="time" name="send_time" value="{{ settings.send_time }}" required></label>
+  <label>Quantidade máxima de avisos<input type="number" min="1" max="10" name="max_attempts" value="{{ settings.max_attempts }}" required></label>
+  <label>Intervalo entre avisos (minutos)<input type="number" min="15" max="1440" name="interval_minutes" value="{{ settings.interval_minutes }}" required></label>
+  <label class="span-2">Mensagem manual / referência<textarea name="manual_message" rows="4">{{ settings.manual_message }}</textarea><small>Variáveis aceitas: {nome}, {data}, {link}. Para a API automática, use um template aprovado com os mesmos três parâmetros.</small></label>
+  <div class="span-2 actions"><button class="btn primary">Salvar configuração</button></div>
+</form>
+<form method="post" action="/admin/lembretes/processar-agora" class="no-print"><button class="btn secondary">Executar verificação agora</button></form>
+<section class="panel"><h2>Últimos envios</h2>{% if logs %}<div class="table-wrap"><table><thead><tr><th>Data/hora</th><th>Cliente</th><th>Pedido para</th><th>Tentativa</th><th>Status</th><th>Detalhe</th></tr></thead><tbody>{% for log in logs %}<tr><td>{{ log.sent_at.strftime('%d/%m/%Y %H:%M') }}</td><td>{{ log.client.trade_name or log.client.company_name }}</td><td>{{ log.target_date.strftime('%d/%m/%Y') }}</td><td>{{ log.attempt_no }}</td><td>{{ log.status }}</td><td>{{ log.error or '-' }}</td></tr>{% endfor %}</tbody></table></div>{% else %}<p class="empty">Nenhum envio registrado.</p>{% endif %}</section>
+{% endblock %}

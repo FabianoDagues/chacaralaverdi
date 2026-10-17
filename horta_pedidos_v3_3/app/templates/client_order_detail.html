@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% block title %}Pedido {{ order.number }}{% endblock %}
+{% block content %}
+{% if saved %}
+<section class="order-success no-print" role="status">
+  <div class="order-success-icon">✓</div>
+  <div>
+    <span>PEDIDO ENVIADO COM SUCESSO!</span>
+    <h1>{{ order.number }}</h1>
+    <p>Recebemos seu pedido para entrega em <b>{{ order.delivery_date.strftime('%d/%m/%Y') }}</b>.</p>
+    <strong>Total: {{ order.total|brl }}</strong>
+  </div>
+</section>
+{% endif %}
+
+<div class="page-head no-print">
+  <div><h1>Pedido {{ order.number }}</h1><p>Confira abaixo o pedido enviado.</p></div>
+  <div class="actions">
+    <button class="btn secondary" type="button" onclick="window.print()">🖨 Imprimir pedido</button>
+    {% if can_change %}<a class="btn primary" href="/cliente/pedido">Editar pedido</a>{% endif %}
+    {% if can_change and not has_payment %}
+    <form method="post" action="/cliente/pedidos/{{ order.id }}/excluir" onsubmit="return confirm('Excluir o pedido {{ order.number }}? Esta ação removerá todos os itens deste pedido.');">
+      <button class="btn danger" type="submit">Excluir pedido</button>
+    </form>
+    {% endif %}
+    <a class="btn secondary" href="/cliente/historico">Meus pedidos</a>
+  </div>
+</div>
+
+{% if not can_change %}<div class="alert warning no-print">O prazo de alteração deste pedido está encerrado. O relatório continua disponível para consulta e impressão.</div>{% endif %}
+{% if has_payment %}<div class="alert info no-print">Este pedido possui pagamento registrado e não pode ser excluído.</div>{% endif %}
+
+<section class="client-order-report">
+  <header class="client-order-report-head">
+    <div class="document-header">
+      {% if company and company.logo_data %}<img class="document-logo" src="/empresa/logo" alt="Logo">{% endif %}
+      <div><h2>{{ company.trade_name if company else app_name }}</h2>{% if company %}<div>{{ company.legal_name }}</div><small>{{ company.document or '' }}{% if company.phone or company.whatsapp %} · {{ company.phone or company.whatsapp }}{% endif %}</small>{% endif %}</div>
+    </div>
+    <div class="right"><b>PEDIDO {{ order.number }}</b><br><span>Entrega: {{ order.delivery_date.strftime('%d/%m/%Y') }}</span></div>
+  </header>
+  <div class="client-order-customer">
+    <div><b>Cliente:</b> {{ client.trade_name or client.company_name }}</div>
+    {% if client.document %}<div><b>Documento:</b> {{ client.document }}</div>{% endif %}
+    {% if client.address %}<div><b>Endereço:</b> {{ client.address }}{% if client.city %} · {{ client.city }}/{{ client.state or '' }}{% endif %}</div>{% endif %}
+    <div><b>Pedido realizado:</b> {{ order.created_at.strftime('%d/%m/%Y %H:%M') }}</div>
+  </div>
+  <div class="table-wrap"><table><thead><tr><th>Produto</th><th>Quantidade</th><th>Preço unit.</th><th>Total</th></tr></thead><tbody>
+    {% for i in order.items %}<tr><td>{{ i.product.name }}</td><td>{{ i.quantity|int }} {{ i.product.unit }}</td><td>{{ i.unit_price|brl }}</td><td>{{ i.total|brl }}</td></tr>{% endfor %}
+    <tr class="total-row"><td colspan="3">Total do pedido</td><td>{{ order.total|brl }}</td></tr>
+  </tbody></table></div>
+  {% if order.notes %}<div class="order-report-notes"><b>Observação:</b> {{ order.notes }}</div>{% endif %}
+</section>
+{% endblock %}
