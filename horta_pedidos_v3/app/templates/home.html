@@ -1,0 +1,8 @@
+{% extends 'base.html' %}
+{% block title %}Acesso - {{ app_name }}{% endblock %}
+{% block content %}{% if company and company.logo_data %}<div class="login-logo"><img src="/empresa/logo" alt="Logo da empresa"></div>{% endif %}
+<div class="hero">
+  <h1>Pedidos da Horta</h1><p>Escolha como deseja acessar.</p>
+  <div class="hero-actions"><a class="btn primary" href="/cliente/login">Sou cliente</a><a class="btn secondary" href="/login">Sou operador</a></div>
+<button class="btn secondary" data-install-app hidden onclick="installHortaApp()">Instalar aplicativo</button><p class="muted">No iPhone/iPad, use Compartilhar → Adicionar à Tela de Início.</p></div>
+{% endblock %}

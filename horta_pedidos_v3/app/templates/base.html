@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#2f6f3e">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="icon" href="/static/icons/icon-192.png">
+  <link rel="stylesheet" href="/static/style.css">
+  <title>{% block title %}{{ app_name }}{% endblock %}</title>
+  {% block head %}{% endblock %}
+</head>
+<body>
+<header class="topbar no-print">
+  <a class="brand" href="/">{% if company and company.logo_data %}<img class="brand-logo" src="/empresa/logo" alt="Logo">{% else %}🌱{% endif %} {{ company.trade_name if company else app_name }}</a>
+  {% if operator %}
+  <nav>
+    <a href="/admin">Dashboard</a>
+    <a href="/admin/empresa">Empresa</a>
+    <a href="/admin/disponibilidade">Disponibilidade</a>
+    <a href="/admin/produtos">Produtos</a>
+    <a href="/admin/clientes">Clientes</a>
+    <a href="/admin/usuarios">Operadores</a>
+    <a href="/admin/receber">Contas a receber</a>
+    <a href="/admin/lembretes">Lembretes</a>
+    <details class="nav-details"><summary>Relatórios</summary><div class="nav-menu">
+      <a href="/admin/relatorios/vendas">Vendas</a>
+      <a href="/admin/relatorios/inadimplentes">Inadimplentes</a>
+      <a href="/admin/relatorios/mais-vendidos">Mais vendidos</a>
+      <a href="/admin/relatorios/diagnostico">Diagnóstico</a>
+    </div></details>
+    <a href="/logout">Sair</a>
+  </nav>
+  {% elif client_session %}
+  <nav><a href="/cliente/pedido">Meu pedido</a><a href="/cliente/historico">Meus pedidos</a><a href="/cliente/logout">Sair</a></nav>
+  {% endif %}
+</header>
+<main class="container">
+  {% if company %}<div class="print-only print-company-header">{% if company.logo_data %}<img src="/empresa/logo" alt="Logo">{% endif %}<div><b>{{ company.trade_name }}</b><br><span>{{ company.legal_name }}</span><br><span>{{ company.document or '' }} · {{ company.phone or company.whatsapp or '' }}</span></div></div>{% endif %}
+  {% if flash %}<div class="alert {{ flash.kind }}">{{ flash.message }}</div>{% endif %}
+  {% block content %}{% endblock %}
+</main>
+<script src="/static/app.js"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>
