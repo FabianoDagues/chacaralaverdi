@@ -807,7 +807,7 @@ def admin_dashboard(request: Request, target: str | None = None, db: Session = D
     return templates.TemplateResponse('admin_dashboard.html', base_context(
         request, operator=operator, target_date=target_date, orders=orders, missing=missing,
         summary_rows=summary_rows, total_sales=total_sales, avg_ticket=avg_ticket,
-        overdue_count=overdue_count,
+        overdue_count=overdue_count, can_print=(target_date == tomorrow_local()),
         chart_labels=[r[0] for r in summary_rows], chart_values=[float(r[2] or 0) for r in summary_rows]
     ))
 
@@ -1166,7 +1166,7 @@ def order_detail(order_id:int,request:Request,db:Session=Depends(get_db)):
     if not operator:return RedirectResponse('/login',303)
     order=db.scalar(select(Order).options(joinedload(Order.client),joinedload(Order.items).joinedload(OrderItem.product)).where(Order.id==order_id, Order.company_id==operator.company_id))
     if not order:raise HTTPException(404)
-    return templates.TemplateResponse('order_detail.html',base_context(request,operator=operator,order=order))
+    return templates.TemplateResponse('order_detail.html',base_context(request,operator=operator,order=order,can_print=(order.delivery_date == tomorrow_local())))
 
 
 @app.get('/admin/pedidos/{order_id}/romaneio')
@@ -1175,6 +1175,9 @@ def order_romaneio(order_id:int,request:Request,db:Session=Depends(get_db)):
     if not operator:return RedirectResponse('/login',303)
     order=db.scalar(select(Order).options(joinedload(Order.client),joinedload(Order.items).joinedload(OrderItem.product)).where(Order.id==order_id, Order.company_id==operator.company_id))
     if not order:raise HTTPException(404)
+    if order.delivery_date != tomorrow_local():
+        flash(request, f'Impressão bloqueada: romaneios só podem ser impressos para pedidos com entrega em {tomorrow_local().strftime("%d/%m/%Y")} (dia seguinte).', 'warning')
+        return RedirectResponse(f'/admin/pedidos/{order.id}',303)
     return templates.TemplateResponse('romaneio.html',base_context(request,operator=operator,orders=[order],print_title=f'Romaneio {order.number}'))
 
 
@@ -1183,6 +1186,9 @@ def all_romaneios(request:Request,target:str|None=None,db:Session=Depends(get_db
     operator=require_operator(request,db)
     if not operator:return RedirectResponse('/login',303)
     target_date=parse_date(target,tomorrow_local())
+    if target_date != tomorrow_local():
+        flash(request, f'Impressão bloqueada: para evitar enganos na entrega, só é permitido imprimir pedidos de {tomorrow_local().strftime("%d/%m/%Y")} (dia seguinte).', 'warning')
+        return RedirectResponse(f'/admin?target={target_date.isoformat()}',303)
     orders=db.scalars(select(Order).options(joinedload(Order.client),joinedload(Order.items).joinedload(OrderItem.product)).where(Order.company_id==operator.company_id, Order.delivery_date==target_date,Order.status=='SUBMITTED').order_by(Order.client_id)).unique().all()
     return templates.TemplateResponse('romaneio.html',base_context(request,operator=operator,orders=orders,print_title=f'Romaneios {target_date.strftime("%d/%m/%Y")}'))
 

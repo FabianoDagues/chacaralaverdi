@@ -55,3 +55,11 @@ Em **Empresa**, o administrador pode ativar o autocadastro e definir uma senha/c
 ## Limpeza da base de testes
 
 Administradores têm a tela **Manutenção** para apagar movimentações de teste antes da entrega. A operação exige digitar `ZERAR BANCO`, informar novamente a senha do administrador e confirmar o alerta. São apagados clientes de teste, disponibilidades, pedidos, contas a receber, recibos, tokens de senha e histórico de lembretes. São preservados empresa/logo, produtos, operadores/usuários e configurações.
+
+## V3.5 — Menu lateral e segurança de impressão
+
+- Menu principal substituído por menu lateral responsivo.
+- Em telas pequenas, o menu abre por botão hambúrguer e fecha por toque fora ou tecla Esc.
+- Romaneios administrativos só podem ser impressos para a data de entrega do dia seguinte.
+- Consultas históricas e outras datas continuam disponíveis, mas sem impressão.
+- A restrição de impressão é validada também no servidor para evitar acesso direto por URL.
