@@ -20,3 +20,8 @@
 - Novo relatório A4 de total para colher por data, com fonte grande e caixa de conferência por produto.
 - Impressão do relatório de colheita protegida: somente para a data de entrega do dia seguinte.
 - Romaneios: fonte ampliada nas linhas de produtos e quantidades, preservando o formato operacional.
+
+## V3.7
+- Logo reduzida nos romaneios e no Total para Colher.
+- Produto e quantidade ampliados para leitura operacional (18 px no romaneio; 21/23 px na colheita).
+- CSS crítico embutido nos relatórios e cache atualizado para evitar versão antiga do estilo.

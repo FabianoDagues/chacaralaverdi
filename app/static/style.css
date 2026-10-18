@@ -29,3 +29,17 @@
 .harvest-toolbar{max-width:210mm}.harvest-lock{max-width:210mm;margin:0 auto 1rem}.harvest-sheet{max-width:192mm;min-height:270mm;margin:0 auto;background:#fff;border:1px solid #777;padding:8mm 9mm;box-shadow:0 5px 20px rgba(0,0,0,.08)}.harvest-header{display:flex;align-items:center;gap:6mm;border-bottom:3px solid #1f2d23;padding-bottom:4mm;margin-bottom:4mm}.harvest-logo{width:30mm;height:22mm;object-fit:contain}.harvest-heading{flex:1}.harvest-heading h1{font-size:27px;letter-spacing:.035em;margin:0 0 1.5mm}.harvest-date{font-size:21px}.harvest-company{font-size:14px;font-weight:700;margin-top:1mm}.harvest-meta{display:flex;gap:8mm;flex-wrap:wrap;background:#eef5ef;border:1px solid #cfdccf;padding:3mm 4mm;margin-bottom:4mm;font-size:16px}.harvest-table{width:100%;border-collapse:collapse}.harvest-table th{background:#173f24;color:#fff;border:2px solid #173f24;font-size:14px;padding:3mm 2.5mm;text-transform:uppercase;letter-spacing:.04em}.harvest-table td{border:2px solid #8c968e;padding:3.8mm 3mm;vertical-align:middle;line-height:1.12}.harvest-product{font-size:22px;font-weight:900}.harvest-qty{font-size:23px;font-weight:900;text-align:center;white-space:nowrap}.harvest-table td:nth-child(3){font-size:17px;font-weight:800;text-align:center}.harvest-check{font-size:25px;text-align:center;font-weight:400}.harvest-check-col{width:22mm}.harvest-unit-col{width:20mm}.harvest-qty-col{width:34mm}.harvest-empty{border:2px dashed #aaa;padding:18mm;text-align:center;font-size:21px;font-weight:700}.harvest-footer{margin-top:7mm;border-top:1px solid #aaa;padding-top:4mm;font-size:14px;font-weight:650}
 @media(max-width:620px){.panel-title-actions{display:block}.panel-title-actions .actions{margin:.45rem 0 .2rem}.panel-title-actions .btn{width:100%}.harvest-sheet{min-height:auto;padding:5mm}.harvest-product{font-size:18px}.harvest-qty{font-size:19px}}
 @media print{.harvest-print-body{background:#fff}.harvest-sheet{max-width:none;min-height:0;border:0;box-shadow:none;margin:0;padding:0}.harvest-table thead{display:table-header-group}.harvest-table tr{break-inside:avoid;page-break-inside:avoid}.harvest-header{break-inside:avoid}.harvest-footer{break-inside:avoid}.romaneio tbody td{font-size:14px}.romaneio tbody td:first-child,.romaneio tbody td:nth-child(2){font-size:16px}}
+
+/* V3.7 - ajuste visual solicitado: logos compactas e produtos realmente grandes */
+.romaneio .document-logo{width:18mm!important;height:14mm!important;max-width:18mm!important;max-height:14mm!important;object-fit:contain!important}
+.romaneio tbody td:first-child{font-size:18px!important;font-weight:900!important;line-height:1.02!important}
+.romaneio tbody td:nth-child(2){font-size:18px!important;font-weight:900!important;text-align:center!important}
+.harvest-logo{width:22mm!important;height:16mm!important;max-width:22mm!important;max-height:16mm!important;object-fit:contain!important}
+.harvest-product{font-size:21px!important;font-weight:900!important;line-height:1.02!important}
+.harvest-qty{font-size:23px!important;font-weight:900!important;text-align:center!important}
+@media print{
+  .romaneio .document-logo{width:18mm!important;height:14mm!important;max-width:18mm!important;max-height:14mm!important}
+  .romaneio tbody td:first-child,.romaneio tbody td:nth-child(2){font-size:18px!important}
+  .harvest-logo{width:22mm!important;height:16mm!important;max-width:22mm!important;max-height:16mm!important}
+  .harvest-product{font-size:21px!important}.harvest-qty{font-size:23px!important}
+}
