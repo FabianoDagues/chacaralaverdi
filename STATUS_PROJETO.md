@@ -25,3 +25,10 @@
 - Logo reduzida nos romaneios e no Total para Colher.
 - Produto e quantidade ampliados para leitura operacional (18 px no romaneio; 21/23 px na colheita).
 - CSS crítico embutido nos relatórios e cache atualizado para evitar versão antiga do estilo.
+
+
+## V3.8
+- Romaneio com 54% da largura reservada ao produto.
+- Produto em 20 px e quantidade em 19 px, usando Arial/Helvetica e peso 700 para leitura grande sem excesso de negrito.
+- Preço/total compactados e alinhados à direita.
+- Relatório de colheita com tipografia mais leve e ampliada.

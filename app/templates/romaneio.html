@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>{{ print_title }}</title>
-  <link rel="stylesheet" href="/static/style.css?v=3.7">
+  <link rel="stylesheet" href="/static/style.css?v=3.8">
   <style>
     /* Estilos críticos ficam aqui para a impressão não depender de CSS antigo em cache. */
     @page { size: A4 portrait; margin: 7mm; }
@@ -16,15 +16,23 @@
     .romaneio .right{font-size:13px;text-align:right;white-space:nowrap}
     .romaneio .client-data{display:grid;gap:.8mm;font-size:13px;line-height:1.15;margin-bottom:2.5mm}
     .romaneio .client-data>b{font-size:15px}
-    .romaneio table{width:100%;border-collapse:collapse;table-layout:fixed}
+    .romaneio table{width:100%;border-collapse:collapse;table-layout:fixed;font-family:Arial,Helvetica,sans-serif}
+    .romaneio col.col-product{width:54%}
+    .romaneio col.col-qty{width:10%}
+    .romaneio col.col-unit{width:8%}
+    .romaneio col.col-price{width:14%}
+    .romaneio col.col-total{width:14%}
     .romaneio th,.romaneio td{border:1px solid #999;text-align:left;vertical-align:middle}
-    .romaneio thead th{font-size:11px;padding:1.2mm 1.3mm;text-transform:uppercase}
-    .romaneio tbody td{font-size:15px;line-height:1.05;padding:1.45mm 1.5mm}
-    .romaneio tbody td:first-child{font-size:18px!important;font-weight:900!important;line-height:1.02!important;width:42%}
-    .romaneio tbody td:nth-child(2){font-size:18px!important;font-weight:900!important;text-align:center!important;width:12%;white-space:nowrap}
-    .romaneio tbody td:nth-child(3){font-size:14px!important;font-weight:800;width:10%;text-align:center}
-    .romaneio tbody td:nth-child(4),.romaneio tbody td:nth-child(5){font-size:14px!important;white-space:nowrap;width:18%}
-    .romaneio tfoot td{font-size:14px;font-weight:900;padding:1.5mm}
+    .romaneio thead th{font-size:11.5px;padding:1.2mm 1.3mm;text-transform:uppercase;font-weight:700}
+    .romaneio thead th:nth-child(2),.romaneio thead th:nth-child(3){text-align:center}
+    .romaneio thead th:nth-child(4),.romaneio thead th:nth-child(5){text-align:right}
+    .romaneio tbody td{font-size:15px;line-height:1.06;padding:1.55mm 1.45mm}
+    .romaneio tbody td:first-child{font-size:20px!important;font-weight:700!important;line-height:1.03!important;letter-spacing:.002em}
+    .romaneio tbody td:nth-child(2){font-size:19px!important;font-weight:700!important;text-align:center!important;white-space:nowrap}
+    .romaneio tbody td:nth-child(3){font-size:15px!important;font-weight:600!important;text-align:center}
+    .romaneio tbody td:nth-child(4),.romaneio tbody td:nth-child(5){font-size:14.5px!important;font-weight:500!important;white-space:nowrap;text-align:right}
+    .romaneio tfoot td{font-size:15px;font-weight:700;padding:1.55mm}
+    .romaneio tfoot td:last-child{text-align:right}
     .romaneio .signature,.romaneio .rom-note{font-size:12px;margin-top:4mm}
     @media print{
       body{background:#fff!important;margin:0!important}
@@ -32,7 +40,8 @@
       .romaneio-sheet{max-width:none!important;margin:0!important}
       .romaneio{box-shadow:none!important;margin:0 0 4mm!important;min-height:132mm!important;padding:5.5mm!important}
       .romaneio .document-logo{width:18mm!important;height:14mm!important;max-width:18mm!important;max-height:14mm!important}
-      .romaneio tbody td:first-child,.romaneio tbody td:nth-child(2){font-size:18px!important}
+      .romaneio tbody td:first-child{font-size:20px!important;font-weight:700!important}
+      .romaneio tbody td:nth-child(2){font-size:19px!important;font-weight:700!important}
     }
   </style>
 </head>
@@ -60,6 +69,9 @@
         <span>Contato: {{ order.client.contact_name or '-' }} · {{ order.client.phone or order.client.whatsapp or '-' }}</span>
       </div>
       <table>
+        <colgroup>
+          <col class="col-product"><col class="col-qty"><col class="col-unit"><col class="col-price"><col class="col-total">
+        </colgroup>
         <thead><tr><th>Produto</th><th>Qtd.</th><th>Un.</th><th>Preço</th><th>Total</th></tr></thead>
         <tbody>
           {% for i in order.items %}

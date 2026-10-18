@@ -43,3 +43,14 @@
   .harvest-logo{width:22mm!important;height:16mm!important;max-width:22mm!important;max-height:16mm!important}
   .harvest-product{font-size:21px!important}.harvest-qty{font-size:23px!important}
 }
+
+
+/* V3.8 - romaneio: coluna de produto mais larga e tipografia mais leve/legível */
+.romaneio table{font-family:Arial,Helvetica,sans-serif!important}
+.romaneio col.col-product{width:54%!important}.romaneio col.col-qty{width:10%!important}.romaneio col.col-unit{width:8%!important}.romaneio col.col-price{width:14%!important}.romaneio col.col-total{width:14%!important}
+.romaneio tbody td:first-child{font-size:20px!important;font-weight:700!important;line-height:1.03!important}
+.romaneio tbody td:nth-child(2){font-size:19px!important;font-weight:700!important;text-align:center!important}
+.romaneio tbody td:nth-child(3){font-size:15px!important;font-weight:600!important;text-align:center!important}
+.romaneio tbody td:nth-child(4),.romaneio tbody td:nth-child(5){font-size:14.5px!important;font-weight:500!important;text-align:right!important}
+.harvest-table{font-family:Arial,Helvetica,sans-serif!important}.harvest-product{font-size:22px!important;font-weight:700!important}.harvest-qty{font-size:24px!important;font-weight:700!important}
+@media print{.romaneio tbody td:first-child{font-size:20px!important;font-weight:700!important}.romaneio tbody td:nth-child(2){font-size:19px!important;font-weight:700!important}.harvest-product{font-size:22px!important;font-weight:700!important}.harvest-qty{font-size:24px!important;font-weight:700!important}}

@@ -69,3 +69,10 @@ Administradores têm a tela **Manutenção** para apagar movimentações de test
 - Relatório A4 com total de cada produto para a data de entrega, fonte grande e campo de conferência.
 - Impressão operacional do relatório liberada somente para pedidos do dia seguinte, seguindo a mesma proteção dos romaneios.
 - Fontes de produtos e quantidades ampliadas nos romaneios para facilitar a leitura na separação/entrega.
+
+
+## V3.8
+- Romaneio com 54% da largura reservada ao produto.
+- Produto em 20 px e quantidade em 19 px, usando Arial/Helvetica e peso 700 para leitura grande sem excesso de negrito.
+- Preço/total compactados e alinhados à direita.
+- Relatório de colheita com tipografia mais leve e ampliada.
