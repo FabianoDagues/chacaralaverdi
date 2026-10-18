@@ -63,3 +63,9 @@ Administradores têm a tela **Manutenção** para apagar movimentações de test
 - Romaneios administrativos só podem ser impressos para a data de entrega do dia seguinte.
 - Consultas históricas e outras datas continuam disponíveis, mas sem impressão.
 - A restrição de impressão é validada também no servidor para evitar acesso direto por URL.
+
+## V3.6 — relatório operacional de colheita
+- Dashboard com acesso direto a **Ver relatório para colher** e **Imprimir** junto aos totais por produto.
+- Relatório A4 com total de cada produto para a data de entrega, fonte grande e campo de conferência.
+- Impressão operacional do relatório liberada somente para pedidos do dia seguinte, seguindo a mesma proteção dos romaneios.
+- Fontes de produtos e quantidades ampliadas nos romaneios para facilitar a leitura na separação/entrega.

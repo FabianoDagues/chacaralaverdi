@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>{{ print_title }}</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <style>
+    @page { size: A4 portrait; margin: 9mm; }
+  </style>
+</head>
+<body class="print-body harvest-print-body">
+  <div class="print-toolbar harvest-toolbar no-print">
+    <a class="btn secondary" href="/admin?target={{ target_date.isoformat() }}">Voltar ao dashboard</a>
+    {% if can_print %}<button class="btn primary" onclick="window.print()">🖨 Imprimir total para colher</button>{% else %}<span class="btn primary disabled" aria-disabled="true">🖨 Impressão bloqueada</span>{% endif %}
+  </div>
+
+  {% if not can_print %}
+  <div class="print-lock harvest-lock no-print">
+    <span>⚠️</span>
+    <div><strong>Consulta sem impressão</strong><span>Para evitar enganos na colheita, a impressão é liberada somente para os pedidos de <b>{{ tomorrow.strftime('%d/%m/%Y') }}</b> (dia seguinte).</span></div>
+  </div>
+  {% endif %}
+
+  <main class="harvest-sheet">
+    <header class="harvest-header">
+      {% if company and company.logo_data %}<img class="harvest-logo" src="/empresa/logo" alt="Logo">{% endif %}
+      <div class="harvest-heading">
+        <h1>TOTAL PARA COLHER</h1>
+        <div class="harvest-date">Entrega: <strong>{{ target_date.strftime('%d/%m/%Y') }}</strong></div>
+        <div class="harvest-company">{{ company.trade_name if company else app_name }}</div>
+      </div>
+    </header>
+
+    <div class="harvest-meta">
+      <span><b>{{ orders_count }}</b> pedido{{ '' if orders_count == 1 else 's' }}</span>
+      <span><b>{{ summary_rows|length }}</b> produto{{ '' if summary_rows|length == 1 else 's' }} diferente{{ '' if summary_rows|length == 1 else 's' }}</span>
+    </div>
+
+    {% if summary_rows %}
+    <table class="harvest-table">
+      <thead><tr><th class="harvest-check-col">Separado</th><th>Produto</th><th class="harvest-unit-col">Un.</th><th class="harvest-qty-col">Quantidade</th></tr></thead>
+      <tbody>
+      {% for r in summary_rows %}
+        <tr><td class="harvest-check">□</td><td class="harvest-product">{{ r[0] }}</td><td>{{ r[1] }}</td><td class="harvest-qty">{{ r[2]|qty }}</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <div class="harvest-empty">Nenhum produto pedido para esta data.</div>
+    {% endif %}
+
+    <footer class="harvest-footer">Gerado em {{ today.strftime('%d/%m/%Y') }} · Conferência: ____________________________________________</footer>
+  </main>
+
+  {% if print_mode and can_print %}<script>window.addEventListener('load',()=>setTimeout(()=>window.print(),250));</script>{% endif %}
+</body>
+</html>

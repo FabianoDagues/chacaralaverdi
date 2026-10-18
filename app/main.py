@@ -811,6 +811,55 @@ def admin_dashboard(request: Request, target: str | None = None, db: Session = D
         chart_labels=[r[0] for r in summary_rows], chart_values=[float(r[2] or 0) for r in summary_rows]
     ))
 
+
+
+@app.get('/admin/relatorios/colheita')
+def harvest_summary_report(request: Request, target: str | None = None, print_mode: int = 0, db: Session = Depends(get_db)):
+    operator = require_operator(request, db)
+    if not operator:
+        return RedirectResponse('/login', 303)
+    target_date = parse_date(target, tomorrow_local())
+    can_print = target_date == tomorrow_local()
+    if print_mode and not can_print:
+        flash(
+            request,
+            f'Impressão bloqueada: o relatório para colheita só pode ser impresso para {tomorrow_local().strftime("%d/%m/%Y")} (dia seguinte).',
+            'warning',
+        )
+        return RedirectResponse(f'/admin?target={target_date.isoformat()}', 303)
+    summary_rows = db.execute(
+        select(Product.name, Product.unit, func.sum(OrderItem.quantity), func.sum(OrderItem.total))
+        .join(OrderItem.product)
+        .join(OrderItem.order)
+        .where(
+            Order.company_id == operator.company_id,
+            Order.delivery_date == target_date,
+            Order.status == 'SUBMITTED',
+        )
+        .group_by(Product.id, Product.name, Product.unit)
+        .order_by(Product.name)
+    ).all()
+    orders_count = db.scalar(
+        select(func.count(Order.id)).where(
+            Order.company_id == operator.company_id,
+            Order.delivery_date == target_date,
+            Order.status == 'SUBMITTED',
+        )
+    ) or 0
+    return templates.TemplateResponse(
+        'harvest_summary.html',
+        base_context(
+            request,
+            operator=operator,
+            target_date=target_date,
+            summary_rows=summary_rows,
+            orders_count=orders_count,
+            can_print=can_print,
+            print_mode=bool(print_mode),
+            print_title=f'Total para colher - {target_date.strftime("%d/%m/%Y")}',
+        ),
+    )
+
 # ------------------------ PRODUTOS CRUD ------------------------
 @app.get('/admin/produtos')
 def products_list(request: Request, db: Session = Depends(get_db)):

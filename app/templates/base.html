@@ -36,6 +36,7 @@
       {% if operator.role == 'ADMIN' %}<a class="{% if request.url.path.startswith('/admin/manutencao') %}active{% endif %}" href="/admin/manutencao"><span>⚠</span> Manutenção</a>{% endif %}
 
       <div class="sidebar-section-title">Relatórios</div>
+      <a class="{% if request.url.path.startswith('/admin/relatorios/colheita') %}active{% endif %}" href="/admin/relatorios/colheita"><span>🌿</span> Total para colher</a>
       <a class="{% if request.url.path.startswith('/admin/relatorios/vendas') %}active{% endif %}" href="/admin/relatorios/vendas"><span>▤</span> Vendas</a>
       <a class="{% if request.url.path.startswith('/admin/relatorios/inadimplentes') %}active{% endif %}" href="/admin/relatorios/inadimplentes"><span>!</span> Inadimplentes</a>
       <a class="{% if request.url.path.startswith('/admin/relatorios/mais-vendidos') %}active{% endif %}" href="/admin/relatorios/mais-vendidos"><span>★</span> Mais vendidos</a>
