@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>{{ print_title }}</title>
-  <link rel="stylesheet" href="/static/style.css?v=3.8">
+  <link rel="stylesheet" href="/static/style.css?v=3.9">
   <style>
     /* Estilos críticos ficam aqui para a impressão não depender de CSS antigo em cache. */
     @page { size: A4 portrait; margin: 7mm; }
@@ -15,8 +15,8 @@
     .romaneio h2{margin:0 0 1mm;font-size:16px;line-height:1.05}
     .romaneio .right{font-size:13px;text-align:right;white-space:nowrap}
     .romaneio .client-data{display:grid;gap:.8mm;font-size:13px;line-height:1.15;margin-bottom:2.5mm}
-    .romaneio .client-data>b{font-size:15px}
-    .romaneio table{width:100%;border-collapse:collapse;table-layout:fixed;font-family:Arial,Helvetica,sans-serif}
+    .romaneio .client-data>b{font-family:"Segoe UI",Arial,Helvetica,sans-serif;font-size:19px;font-weight:600;line-height:1.08}
+    .romaneio table{width:100%;border-collapse:collapse;table-layout:fixed;font-family:"Segoe UI",Arial,Helvetica,sans-serif}
     .romaneio col.col-product{width:54%}
     .romaneio col.col-qty{width:10%}
     .romaneio col.col-unit{width:8%}
@@ -27,9 +27,9 @@
     .romaneio thead th:nth-child(2),.romaneio thead th:nth-child(3){text-align:center}
     .romaneio thead th:nth-child(4),.romaneio thead th:nth-child(5){text-align:right}
     .romaneio tbody td{font-size:15px;line-height:1.06;padding:1.55mm 1.45mm}
-    .romaneio tbody td:first-child{font-size:20px!important;font-weight:700!important;line-height:1.03!important;letter-spacing:.002em}
-    .romaneio tbody td:nth-child(2){font-size:19px!important;font-weight:700!important;text-align:center!important;white-space:nowrap}
-    .romaneio tbody td:nth-child(3){font-size:15px!important;font-weight:600!important;text-align:center}
+    .romaneio tbody td:first-child{font-size:21px!important;font-weight:500!important;line-height:1.04!important;letter-spacing:0}
+    .romaneio tbody td:nth-child(2){font-size:20px!important;font-weight:600!important;text-align:center!important;white-space:nowrap}
+    .romaneio tbody td:nth-child(3){font-size:15.5px!important;font-weight:500!important;text-align:center}
     .romaneio tbody td:nth-child(4),.romaneio tbody td:nth-child(5){font-size:14.5px!important;font-weight:500!important;white-space:nowrap;text-align:right}
     .romaneio tfoot td{font-size:15px;font-weight:700;padding:1.55mm}
     .romaneio tfoot td:last-child{text-align:right}
@@ -40,15 +40,15 @@
       .romaneio-sheet{max-width:none!important;margin:0!important}
       .romaneio{box-shadow:none!important;margin:0 0 4mm!important;min-height:132mm!important;padding:5.5mm!important}
       .romaneio .document-logo{width:18mm!important;height:14mm!important;max-width:18mm!important;max-height:14mm!important}
-      .romaneio tbody td:first-child{font-size:20px!important;font-weight:700!important}
-      .romaneio tbody td:nth-child(2){font-size:19px!important;font-weight:700!important}
+      .romaneio tbody td:first-child{font-size:21px!important;font-weight:500!important}
+      .romaneio tbody td:nth-child(2){font-size:20px!important;font-weight:600!important}
     }
   </style>
 </head>
 <body class="print-body">
   <div class="print-toolbar no-print">
     <button class="btn primary" onclick="window.print()">Imprimir / Salvar PDF</button>
-    <button class="btn secondary" onclick="window.close()">Fechar</button>
+    <button class="btn secondary" onclick="if(history.length>1){history.back()}else{location.href='/admin'}">Voltar</button>
   </div>
   <div class="romaneio-sheet">
     {% for order in orders %}

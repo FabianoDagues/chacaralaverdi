@@ -32,3 +32,9 @@
 - Produto em 20 px e quantidade em 19 px, usando Arial/Helvetica e peso 700 para leitura grande sem excesso de negrito.
 - Preço/total compactados e alinhados à direita.
 - Relatório de colheita com tipografia mais leve e ampliada.
+
+
+## V3.9
+- Nome fantasia do cliente ampliado nos romaneios.
+- Tipografia dos produtos mais leve e legível.
+- Impressões e relatórios internos passam a abrir na mesma guia para evitar acúmulo de abas.

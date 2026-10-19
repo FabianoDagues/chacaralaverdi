@@ -54,3 +54,14 @@
 .romaneio tbody td:nth-child(4),.romaneio tbody td:nth-child(5){font-size:14.5px!important;font-weight:500!important;text-align:right!important}
 .harvest-table{font-family:Arial,Helvetica,sans-serif!important}.harvest-product{font-size:22px!important;font-weight:700!important}.harvest-qty{font-size:24px!important;font-weight:700!important}
 @media print{.romaneio tbody td:first-child{font-size:20px!important;font-weight:700!important}.romaneio tbody td:nth-child(2){font-size:19px!important;font-weight:700!important}.harvest-product{font-size:22px!important;font-weight:700!important}.harvest-qty{font-size:24px!important;font-weight:700!important}}
+
+
+/* V3.9 - tipografia mais limpa, nome fantasia maior e navegação de impressão na mesma guia */
+.romaneio table{font-family:"Segoe UI",Arial,Helvetica,sans-serif!important}
+.romaneio .client-data>b{font-family:"Segoe UI",Arial,Helvetica,sans-serif!important;font-size:19px!important;font-weight:600!important;line-height:1.08!important}
+.romaneio tbody td:first-child{font-size:21px!important;font-weight:500!important;line-height:1.04!important;letter-spacing:0!important}
+.romaneio tbody td:nth-child(2){font-size:20px!important;font-weight:600!important}
+.romaneio tbody td:nth-child(3){font-size:15.5px!important;font-weight:500!important}
+.harvest-table{font-family:"Segoe UI",Arial,Helvetica,sans-serif!important}
+.harvest-product{font-weight:500!important}.harvest-qty{font-weight:600!important}
+@media print{.romaneio .client-data>b{font-size:19px!important;font-weight:600!important}.romaneio tbody td:first-child{font-size:21px!important;font-weight:500!important}.romaneio tbody td:nth-child(2){font-size:20px!important;font-weight:600!important}}
