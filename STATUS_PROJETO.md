@@ -53,3 +53,8 @@ Atualizações: romaneio em duas vias por pedido, nova ordem de colunas e dispon
 ## V4.2
 - Botões + e - do pedido alteram a quantidade sem focar o campo e sem abrir o teclado no celular.
 - Teclado numérico abre somente ao tocar diretamente no campo para digitação manual.
+
+
+## V4.3
+- Romaneio em duas vias na mesma folha A4, sem quebra entre vias.
+- Grade do romaneio com valores em fonte 18 normal; cabeçalhos e total em negrito.

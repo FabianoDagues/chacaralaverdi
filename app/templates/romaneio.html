@@ -4,17 +4,17 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>{{ print_title }}</title>
-  <link rel="stylesheet" href="/static/style.css?v=4.0">
+  <link rel="stylesheet" href="/static/style.css?v=4.3">
   <style>
-    @page { size: A4 portrait; margin: 6mm; }
+    @page { size: A4 portrait; margin: 5mm; }
     *{box-sizing:border-box}
     body.print-body{font-family:"Segoe UI",Arial,Helvetica,sans-serif}
     .romaneio-sheet{max-width:920px;margin:0 auto}
-    .order-page{background:#fff;margin:0 auto 10mm;page-break-after:always;break-after:page}
+    .order-page{background:#fff;margin:0 auto;page-break-after:always;break-after:page;page-break-inside:avoid;break-inside:avoid}
     .order-page:last-child{page-break-after:auto;break-after:auto}
-    .copy-separator{height:3mm;border-top:1px dashed #777;margin:1mm 0 2mm;position:relative}
+    .copy-separator{height:4mm;border-top:1px dashed #777;margin:1mm 0;position:relative}
     .copy-separator span{position:absolute;left:50%;top:-8px;transform:translateX(-50%);background:#fff;padding:0 4mm;color:#666;font-size:9px}
-    .romaneio{background:#fff;border:1px solid #777;padding:4.5mm 5mm;height:134mm;overflow:hidden;break-inside:avoid;page-break-inside:avoid}
+    .romaneio{background:#fff;border:1px solid #777;padding:3.2mm 4mm;height:126mm;overflow:hidden;break-inside:avoid;page-break-inside:avoid}
     .romaneio .document-header{display:flex;align-items:flex-start;justify-content:space-between;gap:3mm;border-bottom:1.5px solid #222;padding-bottom:1.8mm;margin-bottom:1.8mm}
     .romaneio .document-logo{width:15mm!important;height:12mm!important;max-width:15mm!important;max-height:12mm!important;object-fit:contain!important;flex:0 0 15mm}
     .romaneio .header-center{flex:1;text-align:center;min-width:0}
@@ -31,34 +31,41 @@
     .romaneio col.col-price{width:18%}
     .romaneio col.col-total{width:20%}
     .romaneio th,.romaneio td{border:1px solid #999;vertical-align:middle}
-    .romaneio thead th{font-size:10px;padding:.9mm 1mm;text-transform:uppercase;font-weight:650;line-height:1.05}
+    .romaneio thead th{font-size:12px;padding:.7mm .8mm;text-transform:uppercase;font-weight:700;line-height:1.05}
     .romaneio thead th:nth-child(1),.romaneio thead th:nth-child(2){text-align:center}
     .romaneio thead th:nth-child(3){text-align:left}
     .romaneio thead th:nth-child(4),.romaneio thead th:nth-child(5){text-align:right}
-    .romaneio tbody td{font-size:13px;line-height:1.03;padding:1.15mm 1mm}
-    .romaneio tbody td:nth-child(1){font-size:18px;font-weight:600;text-align:center;white-space:nowrap}
-    .romaneio tbody td:nth-child(2){font-size:15px;font-weight:500;text-align:center;white-space:nowrap}
-    .romaneio tbody td:nth-child(3){font-size:18px;font-weight:500;text-align:left;letter-spacing:0}
-    .romaneio tbody td:nth-child(4),.romaneio tbody td:nth-child(5){font-size:13.5px;font-weight:500;text-align:right;white-space:nowrap}
-    .romaneio tfoot td{font-size:13px;font-weight:700;padding:1mm}
+    .romaneio tbody td{font-size:18px;line-height:1.02;padding:.65mm .75mm;font-weight:400}
+    .romaneio tbody td:nth-child(1){font-size:18px;font-weight:400;text-align:center;white-space:nowrap}
+    .romaneio tbody td:nth-child(2){font-size:18px;font-weight:400;text-align:center;white-space:nowrap}
+    .romaneio tbody td:nth-child(3){font-size:18px;font-weight:400;text-align:left;letter-spacing:0}
+    .romaneio tbody td:nth-child(4),.romaneio tbody td:nth-child(5){font-size:18px;font-weight:400;text-align:right;white-space:nowrap}
+    .romaneio tfoot td{font-size:16px;font-weight:700;padding:.8mm}
     .romaneio tfoot td:last-child{text-align:right}
     .romaneio .signature,.romaneio .rom-note{font-size:10.5px;margin-top:2.2mm}
-    .romaneio.compact tbody td{padding:.65mm .8mm}
-    .romaneio.compact tbody td:nth-child(1),.romaneio.compact tbody td:nth-child(3){font-size:15px}
-    .romaneio.compact .client-data{font-size:10.5px;margin-bottom:1mm}
+        .romaneio.compact tbody td{padding:.45mm .65mm}
+    .romaneio.compact .client-data{font-size:10.5px;margin-bottom:.8mm}
     .romaneio.compact .client-data>b{font-size:15px}
-    .romaneio.very-compact tbody td{padding:.35mm .7mm}
-    .romaneio.very-compact tbody td:nth-child(1),.romaneio.very-compact tbody td:nth-child(3){font-size:13px}
-    .romaneio.very-compact thead th{font-size:8.5px;padding:.45mm .6mm}
-    .romaneio.very-compact .signature{margin-top:1mm;font-size:9px}
+    .romaneio.very-compact tbody td{padding:.25mm .55mm}
+    .romaneio.very-compact thead th{font-size:10px;padding:.35mm .5mm}
+    .romaneio.very-compact .client-data{font-size:9.8px;margin-bottom:.5mm}
+    .romaneio.very-compact .client-data>b{font-size:14px}
+    .romaneio.very-compact .signature{margin-top:.7mm;font-size:8.5px}
+
+    .romaneio tbody td{font-family:Arial,Helvetica,sans-serif!important;font-size:18px!important;font-weight:400!important;line-height:1.02!important}
+    .romaneio tbody td:nth-child(1),.romaneio tbody td:nth-child(2),.romaneio tbody td:nth-child(3),.romaneio tbody td:nth-child(4),.romaneio tbody td:nth-child(5){font-size:18px!important;font-weight:400!important}
+    .romaneio thead th{font-weight:700!important}
+    .romaneio tfoot td{font-weight:700!important}
     @media print{
       body{background:#fff!important;margin:0!important}
       .no-print{display:none!important}
       .romaneio-sheet{max-width:none!important;margin:0!important}
-      .order-page{width:100%;height:285mm;margin:0!important;page-break-after:always!important;break-after:page!important;overflow:hidden}
+      .order-page{width:100%;height:258mm;margin:0!important;page-break-after:always!important;break-after:page!important;page-break-inside:avoid!important;break-inside:avoid!important;overflow:hidden}
       .order-page:last-child{page-break-after:auto!important;break-after:auto!important}
-      .romaneio{box-shadow:none!important;height:134mm!important;padding:4mm 4.5mm!important}
-      .copy-separator{height:3mm;margin:1.5mm 0 1mm}
+      .romaneio{box-shadow:none!important;height:126mm!important;padding:3mm 3.8mm!important}
+      .copy-separator{height:4mm;margin:1mm 0}
+      .romaneio tbody td,.romaneio tbody td:nth-child(1),.romaneio tbody td:nth-child(2),.romaneio tbody td:nth-child(3),.romaneio tbody td:nth-child(4),.romaneio tbody td:nth-child(5){font-size:18px!important;font-weight:400!important}
+      .romaneio thead th,.romaneio tfoot td{font-weight:700!important}
     }
   </style>
 </head>
