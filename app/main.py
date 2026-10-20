@@ -955,6 +955,73 @@ async def availability_post(request: Request, db: Session = Depends(get_db)):
     db.commit(); flash(request,f'Disponibilidade de {target_date.strftime("%d/%m/%Y")} salva.')
     return RedirectResponse(f'/admin/disponibilidade?target={target_date.isoformat()}',303)
 
+
+@app.post('/admin/disponibilidade/periodo')
+async def availability_period_post(request: Request, db: Session = Depends(get_db)):
+    """Aplica ou remove produtos selecionados em todas as datas de um intervalo, sem apagar os demais produtos já configurados."""
+    operator = require_operator(request, db)
+    if not operator:
+        return RedirectResponse('/login', 303)
+    form = await request.form()
+    start_date = parse_date(form.get('period_start'))
+    end_date = parse_date(form.get('period_end'))
+    if not start_date or not end_date:
+        flash(request, 'Informe a data inicial e final do período.', 'error')
+        return RedirectResponse('/admin/disponibilidade', 303)
+    if end_date < start_date:
+        flash(request, 'A data final não pode ser anterior à data inicial.', 'error')
+        return RedirectResponse(f'/admin/disponibilidade?target={start_date.isoformat()}', 303)
+    days = (end_date - start_date).days + 1
+    if days > 366:
+        flash(request, 'O período máximo permitido é de 366 dias.', 'error')
+        return RedirectResponse(f'/admin/disponibilidade?target={start_date.isoformat()}', 303)
+
+    products = db.scalars(select(Product).where(Product.company_id == operator.company_id, Product.is_active == True).order_by(Product.name)).all()
+    selected = [p for p in products if form.get(f'period_product_{p.id}') == 'on']
+    if not selected:
+        flash(request, 'Selecione pelo menos um produto para aplicar ao período.', 'warning')
+        return RedirectResponse(f'/admin/disponibilidade?target={start_date.isoformat()}', 303)
+
+    action = (form.get('period_action') or 'add').strip().lower()
+    if action == 'remove':
+        ids = [p.id for p in selected]
+        removed = db.query(Availability).filter(
+            Availability.company_id == operator.company_id,
+            Availability.product_id.in_(ids),
+            Availability.sale_date >= start_date,
+            Availability.sale_date <= end_date,
+        ).delete(synchronize_session=False)
+        db.commit()
+        flash(request, f'{removed} disponibilidade(s) removida(s) entre {start_date.strftime("%d/%m/%Y")} e {end_date.strftime("%d/%m/%Y")}.')
+        return RedirectResponse(f'/admin/disponibilidade?target={start_date.isoformat()}', 303)
+
+    changed = 0
+    current = start_date
+    while current <= end_date:
+        for p in selected:
+            row = db.scalar(select(Availability).where(
+                Availability.company_id == operator.company_id,
+                Availability.sale_date == current,
+                Availability.product_id == p.id,
+            ))
+            price_raw = (form.get(f'period_price_{p.id}') or '').strip()
+            stock_raw = (form.get(f'period_stock_{p.id}') or '').strip()
+            price = parse_decimal(price_raw) if price_raw else None
+            stock = parse_decimal(stock_raw) if stock_raw else None
+            if row:
+                row.price_override = price
+                row.stock_limit = stock
+            else:
+                db.add(Availability(
+                    company_id=operator.company_id, sale_date=current, product_id=p.id,
+                    price_override=price, stock_limit=stock
+                ))
+            changed += 1
+        current += timedelta(days=1)
+    db.commit()
+    flash(request, f'{len(selected)} produto(s) disponibilizado(s) por {days} dia(s), de {start_date.strftime("%d/%m/%Y")} até {end_date.strftime("%d/%m/%Y")}.')
+    return RedirectResponse(f'/admin/disponibilidade?target={start_date.isoformat()}', 303)
+
 # ------------------------ CLIENTES CRUD ------------------------
 @app.get('/admin/clientes')
 def clients_list(request: Request, db: Session = Depends(get_db)):

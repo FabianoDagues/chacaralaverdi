@@ -1,5 +1,12 @@
 # Horta Pedidos
 
+## Versão 4.0
+
+- Romaneio reorganizado para: **QTDE | UNIDADE | DESCRIÇÃO | PREÇO UNITÁRIO | TOTAL PRODUTO**.
+- Impressão em duas vias (1ª e 2ª via) na mesma folha A4, com apenas um cliente/pedido por página.
+- Disponibilidade em massa por período: selecione produtos e aplique/remova de uma data inicial até uma data final sem apagar os demais produtos já configurados.
+
+
 Sistema web responsivo para pedidos diários de uma horta, preparado para Railway + PostgreSQL e uso 24 horas.
 
 ## Módulos incluídos

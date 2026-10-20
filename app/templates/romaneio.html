@@ -4,44 +4,61 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>{{ print_title }}</title>
-  <link rel="stylesheet" href="/static/style.css?v=3.9">
+  <link rel="stylesheet" href="/static/style.css?v=4.0">
   <style>
-    /* Estilos críticos ficam aqui para a impressão não depender de CSS antigo em cache. */
-    @page { size: A4 portrait; margin: 7mm; }
-    .romaneio-sheet{max-width:900px;margin:0 auto}
-    .romaneio{background:#fff;border:1px solid #777;padding:6mm;margin:0 0 4mm;min-height:132mm;page-break-inside:avoid;break-inside:avoid}
-    .romaneio .document-header{display:flex;align-items:flex-start;justify-content:space-between;gap:4mm;border-bottom:2px solid #222;padding-bottom:2.5mm;margin-bottom:2.5mm}
-    .romaneio .document-logo{width:18mm!important;height:14mm!important;max-width:18mm!important;max-height:14mm!important;object-fit:contain!important;flex:0 0 18mm}
-    .romaneio h2{margin:0 0 1mm;font-size:16px;line-height:1.05}
-    .romaneio .right{font-size:13px;text-align:right;white-space:nowrap}
-    .romaneio .client-data{display:grid;gap:.8mm;font-size:13px;line-height:1.15;margin-bottom:2.5mm}
-    .romaneio .client-data>b{font-family:"Segoe UI",Arial,Helvetica,sans-serif;font-size:19px;font-weight:600;line-height:1.08}
-    .romaneio table{width:100%;border-collapse:collapse;table-layout:fixed;font-family:"Segoe UI",Arial,Helvetica,sans-serif}
-    .romaneio col.col-product{width:54%}
+    @page { size: A4 portrait; margin: 6mm; }
+    *{box-sizing:border-box}
+    body.print-body{font-family:"Segoe UI",Arial,Helvetica,sans-serif}
+    .romaneio-sheet{max-width:920px;margin:0 auto}
+    .order-page{background:#fff;margin:0 auto 10mm;page-break-after:always;break-after:page}
+    .order-page:last-child{page-break-after:auto;break-after:auto}
+    .copy-separator{height:3mm;border-top:1px dashed #777;margin:1mm 0 2mm;position:relative}
+    .copy-separator span{position:absolute;left:50%;top:-8px;transform:translateX(-50%);background:#fff;padding:0 4mm;color:#666;font-size:9px}
+    .romaneio{background:#fff;border:1px solid #777;padding:4.5mm 5mm;height:134mm;overflow:hidden;break-inside:avoid;page-break-inside:avoid}
+    .romaneio .document-header{display:flex;align-items:flex-start;justify-content:space-between;gap:3mm;border-bottom:1.5px solid #222;padding-bottom:1.8mm;margin-bottom:1.8mm}
+    .romaneio .document-logo{width:15mm!important;height:12mm!important;max-width:15mm!important;max-height:12mm!important;object-fit:contain!important;flex:0 0 15mm}
+    .romaneio .header-center{flex:1;text-align:center;min-width:0}
+    .romaneio h2{margin:0 0 .7mm;font-size:15px;line-height:1.05}
+    .romaneio .order-number{font-size:14px;font-weight:700}
+    .romaneio .header-right{font-size:11.5px;text-align:right;white-space:nowrap;min-width:34mm}
+    .romaneio .via-label{font-size:13px;font-weight:700;margin-bottom:1mm}
+    .romaneio .client-data{display:grid;gap:.5mm;font-size:11.5px;line-height:1.12;margin-bottom:1.8mm}
+    .romaneio .client-data>b{font-size:17px;font-weight:600;line-height:1.05}
+    .romaneio table{width:100%;border-collapse:collapse;table-layout:fixed}
     .romaneio col.col-qty{width:10%}
-    .romaneio col.col-unit{width:8%}
-    .romaneio col.col-price{width:14%}
-    .romaneio col.col-total{width:14%}
-    .romaneio th,.romaneio td{border:1px solid #999;text-align:left;vertical-align:middle}
-    .romaneio thead th{font-size:11.5px;padding:1.2mm 1.3mm;text-transform:uppercase;font-weight:700}
-    .romaneio thead th:nth-child(2),.romaneio thead th:nth-child(3){text-align:center}
+    .romaneio col.col-unit{width:10%}
+    .romaneio col.col-desc{width:42%}
+    .romaneio col.col-price{width:18%}
+    .romaneio col.col-total{width:20%}
+    .romaneio th,.romaneio td{border:1px solid #999;vertical-align:middle}
+    .romaneio thead th{font-size:10px;padding:.9mm 1mm;text-transform:uppercase;font-weight:650;line-height:1.05}
+    .romaneio thead th:nth-child(1),.romaneio thead th:nth-child(2){text-align:center}
+    .romaneio thead th:nth-child(3){text-align:left}
     .romaneio thead th:nth-child(4),.romaneio thead th:nth-child(5){text-align:right}
-    .romaneio tbody td{font-size:15px;line-height:1.06;padding:1.55mm 1.45mm}
-    .romaneio tbody td:first-child{font-size:21px!important;font-weight:500!important;line-height:1.04!important;letter-spacing:0}
-    .romaneio tbody td:nth-child(2){font-size:20px!important;font-weight:600!important;text-align:center!important;white-space:nowrap}
-    .romaneio tbody td:nth-child(3){font-size:15.5px!important;font-weight:500!important;text-align:center}
-    .romaneio tbody td:nth-child(4),.romaneio tbody td:nth-child(5){font-size:14.5px!important;font-weight:500!important;white-space:nowrap;text-align:right}
-    .romaneio tfoot td{font-size:15px;font-weight:700;padding:1.55mm}
+    .romaneio tbody td{font-size:13px;line-height:1.03;padding:1.15mm 1mm}
+    .romaneio tbody td:nth-child(1){font-size:18px;font-weight:600;text-align:center;white-space:nowrap}
+    .romaneio tbody td:nth-child(2){font-size:15px;font-weight:500;text-align:center;white-space:nowrap}
+    .romaneio tbody td:nth-child(3){font-size:18px;font-weight:500;text-align:left;letter-spacing:0}
+    .romaneio tbody td:nth-child(4),.romaneio tbody td:nth-child(5){font-size:13.5px;font-weight:500;text-align:right;white-space:nowrap}
+    .romaneio tfoot td{font-size:13px;font-weight:700;padding:1mm}
     .romaneio tfoot td:last-child{text-align:right}
-    .romaneio .signature,.romaneio .rom-note{font-size:12px;margin-top:4mm}
+    .romaneio .signature,.romaneio .rom-note{font-size:10.5px;margin-top:2.2mm}
+    .romaneio.compact tbody td{padding:.65mm .8mm}
+    .romaneio.compact tbody td:nth-child(1),.romaneio.compact tbody td:nth-child(3){font-size:15px}
+    .romaneio.compact .client-data{font-size:10.5px;margin-bottom:1mm}
+    .romaneio.compact .client-data>b{font-size:15px}
+    .romaneio.very-compact tbody td{padding:.35mm .7mm}
+    .romaneio.very-compact tbody td:nth-child(1),.romaneio.very-compact tbody td:nth-child(3){font-size:13px}
+    .romaneio.very-compact thead th{font-size:8.5px;padding:.45mm .6mm}
+    .romaneio.very-compact .signature{margin-top:1mm;font-size:9px}
     @media print{
       body{background:#fff!important;margin:0!important}
       .no-print{display:none!important}
       .romaneio-sheet{max-width:none!important;margin:0!important}
-      .romaneio{box-shadow:none!important;margin:0 0 4mm!important;min-height:132mm!important;padding:5.5mm!important}
-      .romaneio .document-logo{width:18mm!important;height:14mm!important;max-width:18mm!important;max-height:14mm!important}
-      .romaneio tbody td:first-child{font-size:21px!important;font-weight:500!important}
-      .romaneio tbody td:nth-child(2){font-size:20px!important;font-weight:600!important}
+      .order-page{width:100%;height:285mm;margin:0!important;page-break-after:always!important;break-after:page!important;overflow:hidden}
+      .order-page:last-child{page-break-after:auto!important;break-after:auto!important}
+      .romaneio{box-shadow:none!important;height:134mm!important;padding:4mm 4.5mm!important}
+      .copy-separator{height:3mm;margin:1.5mm 0 1mm}
     }
   </style>
 </head>
@@ -50,39 +67,50 @@
     <button class="btn primary" onclick="window.print()">Imprimir / Salvar PDF</button>
     <button class="btn secondary" onclick="if(history.length>1){history.back()}else{location.href='/admin'}">Voltar</button>
   </div>
+
+  {% macro via(order, label) %}
+  <section class="romaneio {% if order.items|length > 15 %}very-compact{% elif order.items|length > 10 %}compact{% endif %}">
+    <header class="document-header">
+      {% if company and company.logo_data %}<img class="document-logo" src="/empresa/logo" alt="Logo">{% endif %}
+      <div class="header-center">
+        <h2>{{ company.trade_name if company else app_name }}</h2>
+        <div class="order-number">ROMANEIO {{ order.number }}</div>
+      </div>
+      <div class="header-right">
+        <div class="via-label">{{ label }}</div>
+        <div>Entrega: {{ order.delivery_date.strftime('%d/%m/%Y') }}</div>
+      </div>
+    </header>
+    <div class="client-data">
+      <b>{{ order.client.trade_name or order.client.company_name }}</b>
+      <span>{{ order.client.company_name if order.client.trade_name else '' }}</span>
+      <span>{{ order.client.address or '' }} {{ order.client.city or '' }}/{{ order.client.state or '' }}</span>
+      <span>Contato: {{ order.client.contact_name or '-' }} · {{ order.client.phone or order.client.whatsapp or '-' }}</span>
+    </div>
+    <table>
+      <colgroup>
+        <col class="col-qty"><col class="col-unit"><col class="col-desc"><col class="col-price"><col class="col-total">
+      </colgroup>
+      <thead><tr><th>Qtde</th><th>Unidade</th><th>Descrição</th><th>Preço unitário</th><th>Total produto</th></tr></thead>
+      <tbody>
+        {% for i in order.items %}
+        <tr><td>{{ i.quantity|qty }}</td><td>{{ i.product.unit }}</td><td>{{ i.product.name }}</td><td>{{ i.unit_price|brl }}</td><td>{{ i.total|brl }}</td></tr>
+        {% endfor %}
+      </tbody>
+      <tfoot><tr><td colspan="4">TOTAL DO ROMANEIO</td><td>{{ order.total|brl }}</td></tr></tfoot>
+    </table>
+    {% if order.notes %}<p class="rom-note"><b>Obs.:</b> {{ order.notes }}</p>{% endif %}
+    <div class="signature">Conferência/Recebimento: ________________________________________</div>
+  </section>
+  {% endmacro %}
+
   <div class="romaneio-sheet">
     {% for order in orders %}
-    <section class="romaneio">
-      <header class="document-header">
-        {% if company and company.logo_data %}<img class="document-logo" src="/empresa/logo" alt="Logo">{% endif %}
-        <div>
-          <h2>{{ company.trade_name if company else app_name }}</h2>
-          <small>{{ company.document if company and company.document else '' }}</small><br>
-          <b>ROMANEIO {{ order.number }}</b>
-        </div>
-        <div class="right">Entrega: {{ order.delivery_date.strftime('%d/%m/%Y') }}</div>
-      </header>
-      <div class="client-data">
-        <b>{{ order.client.trade_name or order.client.company_name }}</b>
-        <span>{{ order.client.company_name if order.client.trade_name else '' }}</span>
-        <span>{{ order.client.address or '' }} {{ order.client.city or '' }}/{{ order.client.state or '' }}</span>
-        <span>Contato: {{ order.client.contact_name or '-' }} · {{ order.client.phone or order.client.whatsapp or '-' }}</span>
-      </div>
-      <table>
-        <colgroup>
-          <col class="col-product"><col class="col-qty"><col class="col-unit"><col class="col-price"><col class="col-total">
-        </colgroup>
-        <thead><tr><th>Produto</th><th>Qtd.</th><th>Un.</th><th>Preço</th><th>Total</th></tr></thead>
-        <tbody>
-          {% for i in order.items %}
-          <tr><td>{{ i.product.name }}</td><td>{{ i.quantity|qty }}</td><td>{{ i.product.unit }}</td><td>{{ i.unit_price|brl }}</td><td>{{ i.total|brl }}</td></tr>
-          {% endfor %}
-        </tbody>
-        <tfoot><tr><td colspan="4">TOTAL DO ROMANEIO</td><td>{{ order.total|brl }}</td></tr></tfoot>
-      </table>
-      {% if order.notes %}<p class="rom-note"><b>Obs.:</b> {{ order.notes }}</p>{% endif %}
-      <div class="signature">Conferência/Recebimento: ________________________________________</div>
-    </section>
+    <div class="order-page">
+      {{ via(order, '1ª VIA') }}
+      <div class="copy-separator"><span>corte / destaque</span></div>
+      {{ via(order, '2ª VIA') }}
+    </div>
     {% endfor %}
   </div>
 </body>

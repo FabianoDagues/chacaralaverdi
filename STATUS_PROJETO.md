@@ -1,3 +1,7 @@
+# Versão 4.0
+
+Atualizações: romaneio em duas vias por pedido, nova ordem de colunas e disponibilidade por intervalo de datas.
+
 # Status do Projeto — Horta Pedidos V3.5
 
 ## Implementado
