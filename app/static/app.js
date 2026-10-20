@@ -45,12 +45,16 @@ window.installHortaApp = async function(){ if(!deferredPrompt) return; deferredP
     };
 
     stepper.querySelectorAll('[data-qty-action]').forEach((button) => {
+      // + / - nunca deve abrir o teclado. Se o campo estava sendo editado,
+      // tira o foco antes de alterar a quantidade.
+      button.addEventListener('pointerdown', () => {
+        if (document.activeElement === input) input.blur();
+      });
       button.addEventListener('click', () => {
+        if (document.activeElement === input) input.blur();
         const current = toInt(input.value) ?? 0;
         const delta = button.dataset.qtyAction === 'plus' ? 1 : -1;
         setValue(Math.max(0, current + delta));
-        input.focus({ preventScroll: true });
-        input.select();
       });
     });
 

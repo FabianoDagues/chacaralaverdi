@@ -95,3 +95,8 @@ Administradores têm a tela **Manutenção** para apagar movimentações de test
 - Botões − e + alteram a quantidade de 1 em 1.
 - Ao clicar/tocar no número, o valor atual é selecionado para ser sobrescrito ao digitar.
 - O campo aceita somente números inteiros e restaura 0 se for deixado vazio.
+
+
+## V4.2
+- Botões + e - do pedido alteram a quantidade sem focar o campo e sem abrir o teclado no celular.
+- Teclado numérico abre somente ao tocar diretamente no campo para digitação manual.
