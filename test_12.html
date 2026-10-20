@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Romaneio</title>
+  <link rel="stylesheet" href="/static/style.css?v=4.4">
+  <style>
+    @page { size: A4 portrait; margin: 5mm; }
+    *{box-sizing:border-box}
+    body.print-body{font-family:"Segoe UI",Arial,Helvetica,sans-serif}
+    .romaneio-sheet{max-width:920px;margin:0 auto}
+    .order-page{background:#fff;margin:0 auto;page-break-after:always;break-after:page;page-break-inside:avoid;break-inside:avoid}
+    .order-page:last-child{page-break-after:auto;break-after:auto}
+    .order-page.two-up{min-height:258mm}
+    .order-page.single-copy-page{min-height:277mm}
+    .romaneio.full-copy{height:auto;min-height:270mm;overflow:visible}
+    .copy-separator{height:4mm;border-top:1px dashed #777;margin:1mm 0;position:relative}
+    .copy-separator span{position:absolute;left:50%;top:-8px;transform:translateX(-50%);background:#fff;padding:0 4mm;color:#666;font-size:9px}
+    .romaneio{background:#fff;border:1px solid #777;padding:3.2mm 4mm;height:126mm;overflow:hidden;break-inside:avoid;page-break-inside:avoid}
+    .romaneio .document-header{display:flex;align-items:flex-start;justify-content:space-between;gap:3mm;border-bottom:1.5px solid #222;padding-bottom:1.8mm;margin-bottom:1.8mm}
+    .romaneio .document-logo{width:15mm!important;height:12mm!important;max-width:15mm!important;max-height:12mm!important;object-fit:contain!important;flex:0 0 15mm}
+    .romaneio .header-center{flex:1;text-align:center;min-width:0}
+    .romaneio h2{margin:0 0 .7mm;font-size:15px;line-height:1.05}
+    .romaneio .order-number{font-size:14px;font-weight:700}
+    .romaneio .header-right{font-size:11.5px;text-align:right;white-space:nowrap;min-width:34mm}
+    .romaneio .via-label{font-size:13px;font-weight:700;margin-bottom:1mm}
+    .romaneio .client-data{display:grid;gap:.5mm;font-size:11.5px;line-height:1.12;margin-bottom:1.8mm}
+    .romaneio .client-data>b{font-size:17px;font-weight:600;line-height:1.05}
+    .romaneio table{width:100%;border-collapse:collapse;table-layout:fixed}
+    .romaneio col.col-qty{width:10%}
+    .romaneio col.col-unit{width:10%}
+    .romaneio col.col-desc{width:42%}
+    .romaneio col.col-price{width:18%}
+    .romaneio col.col-total{width:20%}
+    .romaneio th,.romaneio td{border:1px solid #999;vertical-align:middle}
+    .romaneio thead th{font-size:12px;padding:.7mm .8mm;text-transform:uppercase;font-weight:700;line-height:1.05}
+    .romaneio thead th:nth-child(1),.romaneio thead th:nth-child(2){text-align:center}
+    .romaneio thead th:nth-child(3){text-align:left}
+    .romaneio thead th:nth-child(4),.romaneio thead th:nth-child(5){text-align:right}
+    .romaneio tbody td{font-size:18px;line-height:1.02;padding:.65mm .75mm;font-weight:400}
+    .romaneio tbody td:nth-child(1){font-size:18px;font-weight:400;text-align:center;white-space:nowrap}
+    .romaneio tbody td:nth-child(2){font-size:18px;font-weight:400;text-align:center;white-space:nowrap}
+    .romaneio tbody td:nth-child(3){font-size:18px;font-weight:400;text-align:left;letter-spacing:0}
+    .romaneio tbody td:nth-child(4),.romaneio tbody td:nth-child(5){font-size:18px;font-weight:400;text-align:right;white-space:nowrap}
+    .romaneio tfoot td{font-size:16px;font-weight:700;padding:.8mm}
+    .romaneio tfoot td:last-child{text-align:right}
+    .romaneio .signature,.romaneio .rom-note{font-size:10.5px;margin-top:2.2mm}
+        .romaneio.compact tbody td{padding:.45mm .65mm}
+    .romaneio.compact .client-data{font-size:10.5px;margin-bottom:.8mm}
+    .romaneio.compact .client-data>b{font-size:15px}
+    .romaneio.very-compact tbody td{padding:.25mm .55mm}
+    .romaneio.very-compact thead th{font-size:10px;padding:.35mm .5mm}
+    .romaneio.very-compact .client-data{font-size:9.8px;margin-bottom:.5mm}
+    .romaneio.very-compact .client-data>b{font-size:14px}
+    .romaneio.very-compact .signature{margin-top:.7mm;font-size:8.5px}
+
+    .romaneio tbody td{font-family:Arial,Helvetica,sans-serif!important;font-size:18px!important;font-weight:400!important;line-height:1.02!important}
+    .romaneio tbody td:nth-child(1),.romaneio tbody td:nth-child(2),.romaneio tbody td:nth-child(3),.romaneio tbody td:nth-child(4),.romaneio tbody td:nth-child(5){font-size:18px!important;font-weight:400!important}
+    .romaneio thead th{font-weight:700!important}
+    .romaneio tfoot td{font-weight:700!important}
+    @media print{
+      body{background:#fff!important;margin:0!important}
+      .no-print{display:none!important}
+      .romaneio-sheet{max-width:none!important;margin:0!important}
+      .order-page{width:100%;margin:0!important;page-break-after:always!important;break-after:page!important;page-break-inside:avoid!important;break-inside:avoid!important}
+      .order-page.two-up{height:258mm!important;overflow:hidden!important}
+      .order-page.single-copy-page{height:auto!important;min-height:277mm!important;overflow:visible!important}
+      .order-page:last-child{page-break-after:auto!important;break-after:auto!important}
+      .romaneio{box-shadow:none!important;height:126mm!important;padding:3mm 3.8mm!important}
+      .romaneio.full-copy{height:auto!important;min-height:270mm!important;overflow:visible!important;page-break-inside:avoid!important;break-inside:avoid!important}
+      .copy-separator{height:4mm;margin:1mm 0}
+      .romaneio tbody td,.romaneio tbody td:nth-child(1),.romaneio tbody td:nth-child(2),.romaneio tbody td:nth-child(3),.romaneio tbody td:nth-child(4),.romaneio tbody td:nth-child(5){font-size:18px!important;font-weight:400!important}
+      .romaneio thead th,.romaneio tfoot td{font-weight:700!important}
+    }
+  </style>
+</head>
+<body class="print-body">
+  <div class="print-toolbar no-print">
+    <button class="btn primary" onclick="window.print()">Imprimir / Salvar PDF</button>
+    <button class="btn secondary" onclick="if(history.length>1){history.back()}else{location.href='/admin'}">Voltar</button>
+  </div>
+
+  
+
+  <div class="romaneio-sheet">
+    
+    
+      
+      <div class="order-page single-copy-page">
+        
+  <section class="romaneio full-copy">
+    <header class="document-header">
+      
+      <div class="header-center">
+        <h2>CHACARA LAVERDI</h2>
+        <div class="order-number">ROMANEIO PED-TESTE-12</div>
+      </div>
+      <div class="header-right">
+        <div class="via-label">1ª VIA</div>
+        <div>Entrega: 21/10/2026</div>
+      </div>
+    </header>
+    <div class="client-data">
+      <b>Mercado Teste</b>
+      <span>Mercado Teste Ltda</span>
+      <span>Rua Exemplo 123 Maringá/PR</span>
+      <span>Contato: Fabiano · 44999999999</span>
+    </div>
+    <table>
+      <colgroup>
+        <col class="col-qty"><col class="col-unit"><col class="col-desc"><col class="col-price"><col class="col-total">
+      </colgroup>
+      <thead><tr><th>Qtde</th><th>Unidade</th><th>Descrição</th><th>Preço unitário</th><th>Total produto</th></tr></thead>
+      <tbody>
+        
+        <tr><td>1</td><td>UN</td><td>PRODUTO DEMONSTRACAO 1</td><td>R$ 4,00</td><td>R$ 4,00</td></tr>
+        
+        <tr><td>2</td><td>UN</td><td>PRODUTO DEMONSTRACAO 2</td><td>R$ 4,00</td><td>R$ 8,00</td></tr>
+        
+        <tr><td>3</td><td>UN</td><td>PRODUTO DEMONSTRACAO 3</td><td>R$ 4,00</td><td>R$ 12,00</td></tr>
+        
+        <tr><td>4</td><td>UN</td><td>PRODUTO DEMONSTRACAO 4</td><td>R$ 4,00</td><td>R$ 16,00</td></tr>
+        
+        <tr><td>5</td><td>UN</td><td>PRODUTO DEMONSTRACAO 5</td><td>R$ 4,00</td><td>R$ 20,00</td></tr>
+        
+        <tr><td>6</td><td>UN</td><td>PRODUTO DEMONSTRACAO 6</td><td>R$ 4,00</td><td>R$ 24,00</td></tr>
+        
+        <tr><td>7</td><td>UN</td><td>PRODUTO DEMONSTRACAO 7</td><td>R$ 4,00</td><td>R$ 28,00</td></tr>
+        
+        <tr><td>8</td><td>UN</td><td>PRODUTO DEMONSTRACAO 8</td><td>R$ 4,00</td><td>R$ 32,00</td></tr>
+        
+        <tr><td>9</td><td>UN</td><td>PRODUTO DEMONSTRACAO 9</td><td>R$ 4,00</td><td>R$ 36,00</td></tr>
+        
+        <tr><td>10</td><td>UN</td><td>PRODUTO DEMONSTRACAO 10</td><td>R$ 4,00</td><td>R$ 40,00</td></tr>
+        
+        <tr><td>11</td><td>UN</td><td>PRODUTO DEMONSTRACAO 11</td><td>R$ 4,00</td><td>R$ 44,00</td></tr>
+        
+        <tr><td>12</td><td>UN</td><td>PRODUTO DEMONSTRACAO 12</td><td>R$ 4,00</td><td>R$ 48,00</td></tr>
+        
+      </tbody>
+      <tfoot><tr><td colspan="4">TOTAL DO ROMANEIO</td><td>R$ 312,00</td></tr></tfoot>
+    </table>
+    
+    <div class="signature">Conferência/Recebimento: ________________________________________</div>
+  </section>
+  
+      </div>
+      <div class="order-page single-copy-page">
+        
+  <section class="romaneio full-copy">
+    <header class="document-header">
+      
+      <div class="header-center">
+        <h2>CHACARA LAVERDI</h2>
+        <div class="order-number">ROMANEIO PED-TESTE-12</div>
+      </div>
+      <div class="header-right">
+        <div class="via-label">2ª VIA</div>
+        <div>Entrega: 21/10/2026</div>
+      </div>
+    </header>
+    <div class="client-data">
+      <b>Mercado Teste</b>
+      <span>Mercado Teste Ltda</span>
+      <span>Rua Exemplo 123 Maringá/PR</span>
+      <span>Contato: Fabiano · 44999999999</span>
+    </div>
+    <table>
+      <colgroup>
+        <col class="col-qty"><col class="col-unit"><col class="col-desc"><col class="col-price"><col class="col-total">
+      </colgroup>
+      <thead><tr><th>Qtde</th><th>Unidade</th><th>Descrição</th><th>Preço unitário</th><th>Total produto</th></tr></thead>
+      <tbody>
+        
+        <tr><td>1</td><td>UN</td><td>PRODUTO DEMONSTRACAO 1</td><td>R$ 4,00</td><td>R$ 4,00</td></tr>
+        
+        <tr><td>2</td><td>UN</td><td>PRODUTO DEMONSTRACAO 2</td><td>R$ 4,00</td><td>R$ 8,00</td></tr>
+        
+        <tr><td>3</td><td>UN</td><td>PRODUTO DEMONSTRACAO 3</td><td>R$ 4,00</td><td>R$ 12,00</td></tr>
+        
+        <tr><td>4</td><td>UN</td><td>PRODUTO DEMONSTRACAO 4</td><td>R$ 4,00</td><td>R$ 16,00</td></tr>
+        
+        <tr><td>5</td><td>UN</td><td>PRODUTO DEMONSTRACAO 5</td><td>R$ 4,00</td><td>R$ 20,00</td></tr>
+        
+        <tr><td>6</td><td>UN</td><td>PRODUTO DEMONSTRACAO 6</td><td>R$ 4,00</td><td>R$ 24,00</td></tr>
+        
+        <tr><td>7</td><td>UN</td><td>PRODUTO DEMONSTRACAO 7</td><td>R$ 4,00</td><td>R$ 28,00</td></tr>
+        
+        <tr><td>8</td><td>UN</td><td>PRODUTO DEMONSTRACAO 8</td><td>R$ 4,00</td><td>R$ 32,00</td></tr>
+        
+        <tr><td>9</td><td>UN</td><td>PRODUTO DEMONSTRACAO 9</td><td>R$ 4,00</td><td>R$ 36,00</td></tr>
+        
+        <tr><td>10</td><td>UN</td><td>PRODUTO DEMONSTRACAO 10</td><td>R$ 4,00</td><td>R$ 40,00</td></tr>
+        
+        <tr><td>11</td><td>UN</td><td>PRODUTO DEMONSTRACAO 11</td><td>R$ 4,00</td><td>R$ 44,00</td></tr>
+        
+        <tr><td>12</td><td>UN</td><td>PRODUTO DEMONSTRACAO 12</td><td>R$ 4,00</td><td>R$ 48,00</td></tr>
+        
+      </tbody>
+      <tfoot><tr><td colspan="4">TOTAL DO ROMANEIO</td><td>R$ 312,00</td></tr></tfoot>
+    </table>
+    
+    <div class="signature">Conferência/Recebimento: ________________________________________</div>
+  </section>
+  
+      </div>
+      
+    
+  </div>
+</body>
+</html>

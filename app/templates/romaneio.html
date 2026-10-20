@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>{{ print_title }}</title>
-  <link rel="stylesheet" href="/static/style.css?v=4.3">
+  <link rel="stylesheet" href="/static/style.css?v=4.4">
   <style>
     @page { size: A4 portrait; margin: 5mm; }
     *{box-sizing:border-box}
@@ -12,6 +12,9 @@
     .romaneio-sheet{max-width:920px;margin:0 auto}
     .order-page{background:#fff;margin:0 auto;page-break-after:always;break-after:page;page-break-inside:avoid;break-inside:avoid}
     .order-page:last-child{page-break-after:auto;break-after:auto}
+    .order-page.two-up{min-height:258mm}
+    .order-page.single-copy-page{min-height:277mm}
+    .romaneio.full-copy{height:auto;min-height:270mm;overflow:visible}
     .copy-separator{height:4mm;border-top:1px dashed #777;margin:1mm 0;position:relative}
     .copy-separator span{position:absolute;left:50%;top:-8px;transform:translateX(-50%);background:#fff;padding:0 4mm;color:#666;font-size:9px}
     .romaneio{background:#fff;border:1px solid #777;padding:3.2mm 4mm;height:126mm;overflow:hidden;break-inside:avoid;page-break-inside:avoid}
@@ -60,9 +63,12 @@
       body{background:#fff!important;margin:0!important}
       .no-print{display:none!important}
       .romaneio-sheet{max-width:none!important;margin:0!important}
-      .order-page{width:100%;height:258mm;margin:0!important;page-break-after:always!important;break-after:page!important;page-break-inside:avoid!important;break-inside:avoid!important;overflow:hidden}
+      .order-page{width:100%;margin:0!important;page-break-after:always!important;break-after:page!important;page-break-inside:avoid!important;break-inside:avoid!important}
+      .order-page.two-up{height:258mm!important;overflow:hidden!important}
+      .order-page.single-copy-page{height:auto!important;min-height:277mm!important;overflow:visible!important}
       .order-page:last-child{page-break-after:auto!important;break-after:auto!important}
       .romaneio{box-shadow:none!important;height:126mm!important;padding:3mm 3.8mm!important}
+      .romaneio.full-copy{height:auto!important;min-height:270mm!important;overflow:visible!important;page-break-inside:avoid!important;break-inside:avoid!important}
       .copy-separator{height:4mm;margin:1mm 0}
       .romaneio tbody td,.romaneio tbody td:nth-child(1),.romaneio tbody td:nth-child(2),.romaneio tbody td:nth-child(3),.romaneio tbody td:nth-child(4),.romaneio tbody td:nth-child(5){font-size:18px!important;font-weight:400!important}
       .romaneio thead th,.romaneio tfoot td{font-weight:700!important}
@@ -75,8 +81,8 @@
     <button class="btn secondary" onclick="if(history.length>1){history.back()}else{location.href='/admin'}">Voltar</button>
   </div>
 
-  {% macro via(order, label) %}
-  <section class="romaneio {% if order.items|length > 15 %}very-compact{% elif order.items|length > 10 %}compact{% endif %}">
+  {% macro via(order, label, full_copy=false) %}
+  <section class="romaneio{% if full_copy %} full-copy{% endif %}">
     <header class="document-header">
       {% if company and company.logo_data %}<img class="document-logo" src="/empresa/logo" alt="Logo">{% endif %}
       <div class="header-center">
@@ -112,12 +118,22 @@
   {% endmacro %}
 
   <div class="romaneio-sheet">
+    {% set two_up_limit = 10 %}
     {% for order in orders %}
-    <div class="order-page">
-      {{ via(order, '1ª VIA') }}
-      <div class="copy-separator"><span>corte / destaque</span></div>
-      {{ via(order, '2ª VIA') }}
-    </div>
+      {% if order.items|length <= two_up_limit %}
+      <div class="order-page two-up">
+        {{ via(order, '1ª VIA') }}
+        <div class="copy-separator"><span>corte / destaque</span></div>
+        {{ via(order, '2ª VIA') }}
+      </div>
+      {% else %}
+      <div class="order-page single-copy-page">
+        {{ via(order, '1ª VIA', true) }}
+      </div>
+      <div class="order-page single-copy-page">
+        {{ via(order, '2ª VIA', true) }}
+      </div>
+      {% endif %}
     {% endfor %}
   </div>
 </body>

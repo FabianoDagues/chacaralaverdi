@@ -105,3 +105,9 @@ Administradores têm a tela **Manutenção** para apagar movimentações de test
 ## V4.3
 - Romaneio em duas vias na mesma folha A4, sem quebra entre vias.
 - Grade do romaneio com valores em fonte 18 normal; cabeçalhos e total em negrito.
+
+
+## V4.4 — Romaneio adaptativo
+- Até 10 itens: 1ª e 2ª via permanecem juntas na mesma folha A4.
+- Acima de 10 itens: 1ª via ocupa uma página e 2ª via ocupa a página seguinte, mantendo fonte 18 e evitando cortes.
+- Cada pedido começa em sua própria página e nunca é misturado com outro cliente.
