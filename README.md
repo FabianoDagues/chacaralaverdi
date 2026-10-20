@@ -89,3 +89,9 @@ Administradores têm a tela **Manutenção** para apagar movimentações de test
 - Nome fantasia do cliente ampliado nos romaneios.
 - Tipografia dos produtos mais leve e legível.
 - Impressões e relatórios internos passam a abrir na mesma guia para evitar acúmulo de abas.
+
+
+## V4.1 — quantidade segura no pedido
+- Botões − e + alteram a quantidade de 1 em 1.
+- Ao clicar/tocar no número, o valor atual é selecionado para ser sobrescrito ao digitar.
+- O campo aceita somente números inteiros e restaura 0 se for deixado vazio.

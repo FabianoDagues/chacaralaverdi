@@ -23,3 +23,49 @@ window.installHortaApp = async function(){ if(!deferredPrompt) return; deferredP
   document.addEventListener('keydown', e => { if(e.key === 'Escape') close(); });
   document.querySelectorAll('.sidebar-nav a').forEach(a => a.addEventListener('click', () => { if(window.innerWidth <= 900) close(); }));
 })();
+
+
+// V4.1 - seletor seguro de quantidade do pedido
+(function(){
+  const toInt = (value) => {
+    const clean = String(value ?? '').replace(/\D/g, '');
+    if (!clean) return null;
+    const n = Number.parseInt(clean, 10);
+    return Number.isFinite(n) ? Math.max(0, n) : 0;
+  };
+
+  document.querySelectorAll('[data-qty-stepper]').forEach((stepper) => {
+    const input = stepper.querySelector('.qty-step-input');
+    if (!input || input.disabled) return;
+
+    const setValue = (value) => {
+      const n = Math.max(0, Math.trunc(Number(value) || 0));
+      input.value = String(n);
+      input.dispatchEvent(new Event('change', { bubbles: true }));
+    };
+
+    stepper.querySelectorAll('[data-qty-action]').forEach((button) => {
+      button.addEventListener('click', () => {
+        const current = toInt(input.value) ?? 0;
+        const delta = button.dataset.qtyAction === 'plus' ? 1 : -1;
+        setValue(Math.max(0, current + delta));
+        input.focus({ preventScroll: true });
+        input.select();
+      });
+    });
+
+    // Ao tocar/clicar, seleciona todo o valor. Assim 0 + digitar 5 = 5, nunca 50.
+    input.addEventListener('focus', () => input.select());
+    input.addEventListener('click', () => input.select());
+
+    input.addEventListener('input', () => {
+      const n = toInt(input.value);
+      input.value = n === null ? '' : String(n);
+    });
+
+    input.addEventListener('blur', () => {
+      const n = toInt(input.value);
+      input.value = String(n ?? 0);
+    });
+  });
+})();

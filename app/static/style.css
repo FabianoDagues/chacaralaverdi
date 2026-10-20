@@ -65,3 +65,13 @@
 .harvest-table{font-family:"Segoe UI",Arial,Helvetica,sans-serif!important}
 .harvest-product{font-weight:500!important}.harvest-qty{font-weight:600!important}
 @media print{.romaneio .client-data>b{font-size:19px!important;font-weight:600!important}.romaneio tbody td:first-child{font-size:21px!important;font-weight:500!important}.romaneio tbody td:nth-child(2){font-size:20px!important;font-weight:600!important}}
+
+
+/* V4.1 - controle seguro de quantidade no pedido */
+.qty-stepper{display:grid;grid-template-columns:50px minmax(76px,110px) 50px;gap:.42rem;align-items:stretch;margin-top:.12rem;width:max-content;max-width:100%}
+.qty-step-input{height:50px!important;padding:.35rem .3rem!important;text-align:center!important;font-size:1.28rem!important;font-weight:800!important;line-height:1!important;border:2px solid #a9b9ab!important;border-radius:.6rem!important}
+.qty-step-input:focus{border-color:var(--primary)!important;outline:3px solid #c7dfcc!important}
+.qty-step-btn{height:50px;min-width:50px;border:1px solid #9fbea5;border-radius:.6rem;background:#edf6ee;color:var(--primary);font:700 1.75rem/1 "Segoe UI",Arial,sans-serif;cursor:pointer;display:grid;place-items:center;touch-action:manipulation;user-select:none;-webkit-user-select:none}
+.qty-step-btn:hover{background:#dfeee2}.qty-step-btn:active{transform:translateY(1px);background:#d3e8d7}.qty-step-btn:disabled{opacity:.45;cursor:not-allowed;transform:none}
+.qty-help{display:block;margin-top:.25rem;color:var(--muted);font-size:.74rem;font-weight:500;line-height:1.25}
+@media(max-width:620px){.qty-stepper{grid-template-columns:54px minmax(90px,1fr) 54px;width:100%}.qty-step-btn,.qty-step-input{height:54px!important}.qty-step-btn{font-size:1.9rem}.qty-step-input{font-size:1.35rem!important}}

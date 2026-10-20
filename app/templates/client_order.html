@@ -40,7 +40,12 @@
         {% if a.stock_limit is not none %}<small>Disponibilidade total do dia: {{ a.stock_limit|qty }} {{ a.product.unit }}</small>{% endif %}
       </div>
       <label>Quantidade
-        <input type="number" min="0" step="1" inputmode="numeric" name="qty_{{ a.product_id }}" value="{{ quantities.get(a.product_id, 0)|int }}" {% if block_reason or not order_open %}disabled{% endif %}>
+        <div class="qty-stepper" data-qty-stepper>
+          <button type="button" class="qty-step-btn" data-qty-action="minus" aria-label="Diminuir quantidade de {{ a.product.name }}" {% if block_reason or not order_open %}disabled{% endif %}>−</button>
+          <input class="qty-step-input" type="text" inputmode="numeric" pattern="[0-9]*" autocomplete="off" name="qty_{{ a.product_id }}" value="{{ quantities.get(a.product_id, 0)|int }}" aria-label="Quantidade de {{ a.product.name }}" {% if block_reason or not order_open %}disabled{% endif %}>
+          <button type="button" class="qty-step-btn" data-qty-action="plus" aria-label="Aumentar quantidade de {{ a.product.name }}" {% if block_reason or not order_open %}disabled{% endif %}>+</button>
+        </div>
+        <small class="qty-help">Use −/+ ou toque no número para digitar outra quantidade.</small>
       </label>
     </article>
   {% endfor %}
