@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#2f6f3e">
   <link rel="manifest" href="/manifest.webmanifest">
   <link rel="icon" href="/static/icons/icon-192.png">
-  <link rel="stylesheet" href="/static/style.css?v=3.7">
+  <link rel="stylesheet" href="/static/style.css?v=4.6">
   <title>{% block title %}{{ app_name }}{% endblock %}</title>
   {% block head %}{% endblock %}
 </head>
@@ -84,8 +84,13 @@
     {% if flash %}<div class="alert {{ flash.kind }}">{{ flash.message }}</div>{% endif %}
     {% block content %}{% endblock %}
   </main>
+  <footer class="software-credit no-print">
+    <strong>Sistema desenvolvido por PREMIUM SOFTWARE LTDA</strong>
+    <span>RUA BEM TE VI, 1973 CONJUNTO SANENGE - MARINGA - PR</span>
+    <span>Fone: 44 99875-7636</span>
+  </footer>
 </div>
-<script src="/static/app.js"></script>
+<script src="/static/app.js?v=4.6"></script>
 {% block scripts %}{% endblock %}
 </body>
 </html>

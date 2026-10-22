@@ -50,6 +50,33 @@ def parse_date(value: str | None, default: date | None = None):
         return default
 
 
+def parse_optional_integer(value: str | None):
+    """Converte estoque opcional para inteiro não negativo; vazio significa sem limite."""
+    raw = (value or '').strip()
+    if not raw:
+        return None
+    number = parse_decimal(raw)
+    if number < 0 or number != number.to_integral_value():
+        raise ValueError('O estoque deve ser informado em unidades inteiras (0, 1, 2, 3...).')
+    return number.to_integral_value()
+
+
+def reserved_by_product(db: Session, company_id: int, delivery_date: date, exclude_order_id: int | None = None):
+    stmt = (
+        select(OrderItem.product_id, func.coalesce(func.sum(OrderItem.quantity), 0))
+        .join(Order, OrderItem.order_id == Order.id)
+        .where(
+            Order.company_id == company_id,
+            Order.delivery_date == delivery_date,
+            Order.status == 'SUBMITTED',
+        )
+        .group_by(OrderItem.product_id)
+    )
+    if exclude_order_id:
+        stmt = stmt.where(Order.id != exclude_order_id)
+    return {product_id: Decimal(total or 0) for product_id, total in db.execute(stmt).all()}
+
+
 def flash(request: Request, message: str, kind: str = 'success'):
     request.session['flash'] = {'message': message, 'kind': kind}
 
@@ -939,7 +966,12 @@ def availability_get(request: Request, target: str | None = None, db: Session = 
     products=db.scalars(select(Product).where(Product.company_id==operator.company_id, Product.is_active==True).order_by(Product.category,Product.name)).all()
     rows=db.scalars(select(Availability).where(Availability.company_id==operator.company_id, Availability.sale_date==target_date)).all()
     amap={r.product_id:r for r in rows}
-    return templates.TemplateResponse('availability.html',base_context(request,operator=operator,target_date=target_date,products=products,amap=amap))
+    reserved_map=reserved_by_product(db, operator.company_id, target_date)
+    remaining_map={}
+    for r in rows:
+        if r.stock_limit is not None:
+            remaining_map[r.product_id]=max(Decimal(r.stock_limit)-reserved_map.get(r.product_id,Decimal('0')),Decimal('0'))
+    return templates.TemplateResponse('availability.html',base_context(request,operator=operator,target_date=target_date,products=products,amap=amap,reserved_map=reserved_map,remaining_map=remaining_map))
 
 
 @app.post('/admin/disponibilidade')
@@ -948,11 +980,24 @@ async def availability_post(request: Request, db: Session = Depends(get_db)):
     if not operator: return RedirectResponse('/login',303)
     form=await request.form(); target_date=parse_date(form.get('target_date'),tomorrow_local())
     products=db.scalars(select(Product).where(Product.company_id==operator.company_id, Product.is_active==True)).all()
-    db.query(Availability).filter(Availability.company_id==operator.company_id, Availability.sale_date==target_date).delete(synchronize_session=False)
+    reserved_map=reserved_by_product(db, operator.company_id, target_date)
+    configs=[]
     for p in products:
         if form.get(f'available_{p.id}') == 'on':
-            price_raw=form.get(f'price_{p.id}','').strip(); stock_raw=form.get(f'stock_{p.id}','').strip()
-            db.add(Availability(company_id=operator.company_id, sale_date=target_date,product_id=p.id,price_override=parse_decimal(price_raw) if price_raw else None,stock_limit=parse_decimal(stock_raw) if stock_raw else None))
+            price_raw=(form.get(f'price_{p.id}','') or '').strip(); stock_raw=(form.get(f'stock_{p.id}','') or '').strip()
+            try:
+                stock=parse_optional_integer(stock_raw)
+            except ValueError as exc:
+                flash(request,f'{p.name}: {exc}','error')
+                return RedirectResponse(f'/admin/disponibilidade?target={target_date.isoformat()}',303)
+            reserved=reserved_map.get(p.id,Decimal('0'))
+            if stock is not None and stock < reserved:
+                flash(request,f'{p.name}: já existem {qty(reserved)} {p.unit} em pedidos; o estoque do dia não pode ser menor que isso.','error')
+                return RedirectResponse(f'/admin/disponibilidade?target={target_date.isoformat()}',303)
+            configs.append((p, parse_decimal(price_raw) if price_raw else None, stock))
+    db.query(Availability).filter(Availability.company_id==operator.company_id, Availability.sale_date==target_date).delete(synchronize_session=False)
+    for p, price, stock in configs:
+        db.add(Availability(company_id=operator.company_id, sale_date=target_date,product_id=p.id,price_override=price,stock_limit=stock))
     db.commit(); flash(request,f'Disponibilidade de {target_date.strftime("%d/%m/%Y")} salva.')
     return RedirectResponse(f'/admin/disponibilidade?target={target_date.isoformat()}',303)
 
@@ -996,6 +1041,37 @@ async def availability_period_post(request: Request, db: Session = Depends(get_d
         flash(request, f'{removed} disponibilidade(s) removida(s) entre {start_date.strftime("%d/%m/%Y")} e {end_date.strftime("%d/%m/%Y")}.')
         return RedirectResponse(f'/admin/disponibilidade?target={start_date.isoformat()}', 303)
 
+    configs = {}
+    for p in selected:
+        price_raw = (form.get(f'period_price_{p.id}') or '').strip()
+        stock_raw = (form.get(f'period_stock_{p.id}') or '').strip()
+        try:
+            stock = parse_optional_integer(stock_raw)
+        except ValueError as exc:
+            flash(request, f'{p.name}: {exc}', 'error')
+            return RedirectResponse(f'/admin/disponibilidade?target={start_date.isoformat()}', 303)
+        configs[p.id] = (parse_decimal(price_raw) if price_raw else None, stock, p)
+
+    controlled_ids = [pid for pid, (_, stock, _) in configs.items() if stock is not None]
+    if controlled_ids:
+        reserved_rows = db.execute(
+            select(Order.delivery_date, OrderItem.product_id, func.coalesce(func.sum(OrderItem.quantity), 0))
+            .join(OrderItem, OrderItem.order_id == Order.id)
+            .where(
+                Order.company_id == operator.company_id,
+                Order.status == 'SUBMITTED',
+                Order.delivery_date >= start_date,
+                Order.delivery_date <= end_date,
+                OrderItem.product_id.in_(controlled_ids),
+            )
+            .group_by(Order.delivery_date, OrderItem.product_id)
+        ).all()
+        for delivery_date, product_id, reserved in reserved_rows:
+            _, stock, product = configs[product_id]
+            if stock is not None and stock < Decimal(reserved or 0):
+                flash(request, f'{product.name} em {delivery_date.strftime("%d/%m/%Y")}: já existem {qty(reserved)} {product.unit} em pedidos; informe estoque igual ou maior.', 'error')
+                return RedirectResponse(f'/admin/disponibilidade?target={start_date.isoformat()}', 303)
+
     changed = 0
     current = start_date
     while current <= end_date:
@@ -1005,10 +1081,7 @@ async def availability_period_post(request: Request, db: Session = Depends(get_d
                 Availability.sale_date == current,
                 Availability.product_id == p.id,
             ))
-            price_raw = (form.get(f'period_price_{p.id}') or '').strip()
-            stock_raw = (form.get(f'period_stock_{p.id}') or '').strip()
-            price = parse_decimal(price_raw) if price_raw else None
-            stock = parse_decimal(stock_raw) if stock_raw else None
+            price, stock, _ = configs[p.id]
             if row:
                 row.price_override = price
                 row.stock_limit = stock
@@ -1174,7 +1247,13 @@ def client_order_get(request:Request,db:Session=Depends(get_db)):
     avail=sorted(avail,key=lambda a:(a.product.category or '',a.product.name))
     order=db.scalar(select(Order).options(joinedload(Order.items)).where(Order.company_id==client.company_id, Order.client_id==client.id,Order.delivery_date==target,Order.status=='SUBMITTED'))
     quantities={i.product_id:i.quantity for i in order.items} if order else {}
-    return templates.TemplateResponse('client_order.html',base_context(request,client_session=client,client=client,target_date=target,avail=avail,quantities=quantities,order=order,block_reason=block_reason,order_open=order_open_for(target),cutoff_hour=ORDER_CUTOFF_HOUR))
+    existing_id=order.id if order else None
+    reserved_map=reserved_by_product(db, client.company_id, target, existing_id)
+    remaining_by_product={}
+    for a in avail:
+        if a.stock_limit is not None:
+            remaining_by_product[a.product_id]=max(Decimal(a.stock_limit)-reserved_map.get(a.product_id,Decimal('0')),Decimal('0'))
+    return templates.TemplateResponse('client_order.html',base_context(request,client_session=client,client=client,target_date=target,avail=avail,quantities=quantities,order=order,block_reason=block_reason,order_open=order_open_for(target),cutoff_hour=ORDER_CUTOFF_HOUR,remaining_by_product=remaining_by_product,notes_value=order.notes if order and order.notes else ''))
 
 
 @app.post('/cliente/pedido')
@@ -1184,37 +1263,61 @@ async def client_order_post(request:Request,db:Session=Depends(get_db)):
     target=tomorrow_local();block_reason=client_block_reason(db,client)
     if block_reason:db.commit();flash(request,block_reason,'error');return RedirectResponse('/cliente/pedido',303)
     if not order_open_for(target):flash(request,'O prazo para o pedido do próximo dia está encerrado.','error');return RedirectResponse('/cliente/pedido',303)
-    form=await request.form();avail=db.scalars(select(Availability).options(joinedload(Availability.product)).where(Availability.company_id==client.company_id, Availability.sale_date==target)).all()
-    requested=[]; errors=[]
+    form=await request.form()
+    # Bloqueia as linhas de disponibilidade durante a validação para reduzir risco de venda acima do estoque em acessos simultâneos.
+    avail=db.scalars(
+        select(Availability)
+        .where(Availability.company_id==client.company_id, Availability.sale_date==target)
+        .with_for_update()
+    ).all()
+    avail=sorted(avail,key=lambda a:(a.product.category or '',a.product.name))
+    requested=[]; errors=[]; draft_quantities={}
     existing=db.scalar(select(Order).options(joinedload(Order.items)).where(Order.company_id==client.company_id, Order.client_id==client.id,Order.delivery_date==target,Order.status=='SUBMITTED'))
-    existing_id=existing.id if existing else -1
+    existing_id=existing.id if existing else None
+    reserved_map=reserved_by_product(db, client.company_id, target, existing_id)
+    remaining_by_product={}
+    for a in avail:
+        if a.stock_limit is not None:
+            remaining_by_product[a.product_id]=max(Decimal(a.stock_limit)-reserved_map.get(a.product_id,Decimal('0')),Decimal('0'))
+
     for a in avail:
         q=parse_decimal(form.get(f'qty_{a.product_id}'))
         if q < 0:
             errors.append(f'{a.product.name}: a quantidade não pode ser negativa.')
+            draft_quantities[a.product_id]=0
             continue
         if q != q.to_integral_value():
             errors.append(f'{a.product.name}: informe somente unidades inteiras (1, 2, 3...).')
+            draft_quantities[a.product_id]=0
             continue
         q = q.to_integral_value()
+        draft_quantities[a.product_id]=q
         if q>0:
             if a.stock_limit is not None:
-                other_qty=db.scalar(select(func.coalesce(func.sum(OrderItem.quantity),0)).join(Order).where(Order.company_id==client.company_id, Order.delivery_date==target,OrderItem.product_id==a.product_id,Order.id!=existing_id,Order.status=='SUBMITTED')) or Decimal('0')
-                if Decimal(other_qty)+q>Decimal(a.stock_limit):
-                    remaining=max(Decimal(a.stock_limit)-Decimal(other_qty),Decimal('0'))
-                    errors.append(f'{a.product.name}: disponível restante {qty(remaining)} {a.product.unit}.')
+                remaining=remaining_by_product.get(a.product_id,Decimal('0'))
+                if q>remaining:
+                    errors.append(f'{a.product.name}: restam somente {qty(remaining)} {a.product.unit}. A quantidade deste produto foi zerada; os demais itens foram mantidos.')
+                    draft_quantities[a.product_id]=0
                     continue
             price=Decimal(a.price_override if a.price_override is not None else a.product.default_price)
             requested.append((a.product_id,q,price,(q*price).quantize(Decimal('0.01'))))
+
+    notes_value=(form.get('notes','') or '').strip()
     if errors:
-        flash(request,' '.join(errors),'error');return RedirectResponse('/cliente/pedido',303)
+        # Não perde o pedido digitado: apenas os produtos com erro voltam para zero.
+        return templates.TemplateResponse('client_order.html',base_context(
+            request, client_session=client, client=client, target_date=target, avail=avail,
+            quantities=draft_quantities, order=existing, block_reason=None, order_open=True,
+            cutoff_hour=ORDER_CUTOFF_HOUR, remaining_by_product=remaining_by_product,
+            notes_value=notes_value, flash={'message':' '.join(errors),'kind':'error'}
+        ), status_code=400)
     if not requested:
         flash(request,'Informe a quantidade de pelo menos um produto.','error');return RedirectResponse('/cliente/pedido',303)
     order=existing
     if not order:
-        order=Order(company_id=client.company_id, number='TEMP',client_id=client.id,delivery_date=target,status='SUBMITTED',notes=form.get('notes','').strip() or None,total=0);db.add(order);db.flush();order.number=f'PED-{target.strftime("%Y%m%d")}-{order.id:05d}'
+        order=Order(company_id=client.company_id, number='TEMP',client_id=client.id,delivery_date=target,status='SUBMITTED',notes=notes_value or None,total=0);db.add(order);db.flush();order.number=f'PED-{target.strftime("%Y%m%d")}-{order.id:05d}'
     else:
-        order.notes=form.get('notes','').strip() or None;order.items.clear();db.flush()
+        order.notes=notes_value or None;order.items.clear();db.flush()
     total=Decimal('0')
     for product_id,q,price,line_total in requested:
         order.items.append(OrderItem(product_id=product_id,quantity=q,unit_price=price,total=line_total));total+=line_total

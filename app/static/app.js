@@ -25,7 +25,7 @@ window.installHortaApp = async function(){ if(!deferredPrompt) return; deferredP
 })();
 
 
-// V4.1 - seletor seguro de quantidade do pedido
+// V4.6 - seletor seguro de quantidade com saldo de estoque em tempo real
 (function(){
   const toInt = (value) => {
     const clean = String(value ?? '').replace(/\D/g, '');
@@ -38,23 +38,60 @@ window.installHortaApp = async function(){ if(!deferredPrompt) return; deferredP
     const input = stepper.querySelector('.qty-step-input');
     if (!input || input.disabled) return;
 
-    const setValue = (value) => {
-      const n = Math.max(0, Math.trunc(Number(value) || 0));
+    const hasMax = stepper.dataset.maxQty !== undefined;
+    const maxQty = hasMax ? Math.max(0, Number.parseInt(stepper.dataset.maxQty || '0', 10) || 0) : null;
+    const unit = stepper.dataset.unit || 'un';
+    const limitMessage = stepper.parentElement?.querySelector('[data-qty-limit-message]');
+    const plusButton = stepper.querySelector('[data-qty-action="plus"]');
+
+    const showLimit = () => {
+      if (!hasMax || !limitMessage) return;
+      limitMessage.textContent = `Este é o estoque máximo disponível: ${maxQty} ${unit}.`;
+      limitMessage.classList.add('show');
+    };
+    const hideLimit = () => {
+      if (!limitMessage) return;
+      limitMessage.textContent = '';
+      limitMessage.classList.remove('show');
+    };
+    const syncPlusState = (value) => {
+      if (!plusButton || !hasMax) return;
+      plusButton.setAttribute('aria-disabled', value >= maxQty ? 'true' : 'false');
+    };
+    const setValue = (value, notifyAtMax = false) => {
+      let n = Math.max(0, Math.trunc(Number(value) || 0));
+      if (hasMax && n >= maxQty) {
+        n = maxQty;
+        if (notifyAtMax) showLimit();
+      } else {
+        hideLimit();
+      }
       input.value = String(n);
+      syncPlusState(n);
       input.dispatchEvent(new Event('change', { bubbles: true }));
     };
 
     stepper.querySelectorAll('[data-qty-action]').forEach((button) => {
-      // + / - nunca deve abrir o teclado. Se o campo estava sendo editado,
-      // tira o foco antes de alterar a quantidade.
-      button.addEventListener('pointerdown', () => {
+      // Botões nunca focam o campo de quantidade; o teclado abre só ao tocar no número.
+      button.addEventListener('pointerdown', (event) => {
+        event.preventDefault();
         if (document.activeElement === input) input.blur();
       });
-      button.addEventListener('click', () => {
+      button.addEventListener('click', (event) => {
+        event.preventDefault();
         if (document.activeElement === input) input.blur();
         const current = toInt(input.value) ?? 0;
-        const delta = button.dataset.qtyAction === 'plus' ? 1 : -1;
-        setValue(Math.max(0, current + delta));
+        if (button.dataset.qtyAction === 'plus') {
+          if (hasMax && current >= maxQty) {
+            showLimit();
+            syncPlusState(current);
+            return;
+          }
+          const next = current + 1;
+          setValue(next, hasMax && next >= maxQty);
+        } else {
+          setValue(Math.max(0, current - 1), false);
+        }
       });
     });
 
@@ -64,12 +101,28 @@ window.installHortaApp = async function(){ if(!deferredPrompt) return; deferredP
 
     input.addEventListener('input', () => {
       const n = toInt(input.value);
-      input.value = n === null ? '' : String(n);
+      if (n === null) {
+        input.value = '';
+        hideLimit();
+        syncPlusState(0);
+        return;
+      }
+      if (hasMax && n >= maxQty) {
+        input.value = String(maxQty);
+        showLimit();
+        syncPlusState(maxQty);
+      } else {
+        input.value = String(n);
+        hideLimit();
+        syncPlusState(n);
+      }
     });
 
     input.addEventListener('blur', () => {
       const n = toInt(input.value);
-      input.value = String(n ?? 0);
+      setValue(n ?? 0, false);
     });
+
+    syncPlusState(toInt(input.value) ?? 0);
   });
 })();

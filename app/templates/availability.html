@@ -18,7 +18,7 @@
     </div>
     <div class="table-wrap">
       <table>
-        <thead><tr><th>Selecionar</th><th>Produto</th><th>Un.</th><th>Preço no período</th><th>Limite por dia</th></tr></thead>
+        <thead><tr><th>Selecionar</th><th>Produto</th><th>Un.</th><th>Preço no período</th><th>Estoque por dia (opcional)</th></tr></thead>
         <tbody>
           {% for p in products %}
           <tr>
@@ -26,7 +26,7 @@
             <td><b>{{ p.name }}</b><small>{{ p.category or '' }}</small></td>
             <td>{{ p.unit }}</td>
             <td><input class="small-input" name="period_price_{{ p.id }}" placeholder="padrão {{ p.default_price|brl }}"></td>
-            <td><input class="small-input" name="period_stock_{{ p.id }}" placeholder="opcional"></td>
+            <td><input class="small-input" type="number" min="0" step="1" inputmode="numeric" name="period_stock_{{ p.id }}" placeholder="sem limite"></td>
           </tr>
           {% endfor %}
         </tbody>
@@ -43,6 +43,7 @@
 
 <div class="panel">
   <h2 style="margin-top:0">Editar um dia específico</h2>
+  <p class="muted">Se informar estoque, o saldo mostrado ao cliente será atualizado automaticamente conforme os pedidos forem entrando. Deixe o estoque vazio para vender sem limite informado.</p>
   <form class="filter-row" method="get">
     <label>Data de venda/entrega<input type="date" name="target" value="{{ target_date.isoformat() }}"></label>
     <button class="btn secondary">Carregar</button>
@@ -51,7 +52,7 @@
     <input type="hidden" name="target_date" value="{{ target_date.isoformat() }}">
     <div class="table-wrap">
       <table>
-        <thead><tr><th>Disponível</th><th>Produto</th><th>Un.</th><th>Preço do dia</th><th>Limite total do dia</th></tr></thead>
+        <thead><tr><th>Disponível</th><th>Produto</th><th>Un.</th><th>Preço do dia</th><th>Estoque do dia</th><th>Já pedido</th><th>Saldo</th></tr></thead>
         <tbody>
           {% for p in products %}{% set a=amap.get(p.id) %}
           <tr>
@@ -59,7 +60,9 @@
             <td><b>{{ p.name }}</b><small>{{ p.category or '' }}</small></td>
             <td>{{ p.unit }}</td>
             <td><input class="small-input" name="price_{{ p.id }}" value="{{ a.price_override if a and a.price_override is not none else p.default_price }}"></td>
-            <td><input class="small-input" name="stock_{{ p.id }}" value="{{ a.stock_limit if a and a.stock_limit is not none else '' }}" placeholder="opcional"></td>
+            <td><input class="small-input" type="number" min="0" step="1" inputmode="numeric" name="stock_{{ p.id }}" value="{{ a.stock_limit|int if a and a.stock_limit is not none else '' }}" placeholder="sem limite"></td>
+            <td>{% if a %}<b>{{ reserved_map.get(p.id, 0)|qty }}</b> {{ p.unit }}{% else %}—{% endif %}</td>
+            <td>{% if a and a.stock_limit is not none %}<b>{{ remaining_map.get(p.id, 0)|qty }}</b> {{ p.unit }}{% elif a %}<span class="muted">sem limite</span>{% else %}—{% endif %}</td>
           </tr>
           {% endfor %}
         </tbody>

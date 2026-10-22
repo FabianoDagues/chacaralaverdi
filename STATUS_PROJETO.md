@@ -66,3 +66,13 @@ Atualizações: romaneio em duas vias por pedido, nova ordem de colunas e dispon
 - Cada pedido começa em sua própria página e nunca é misturado com outro cliente.
 
 - [x] Romaneio em PDF A4 gerado no servidor para impressão consistente em celular e computador.
+
+## V4.6 — Controle de estoque diário
+- [x] Estoque opcional por produto/dia e por período.
+- [x] Saldo restante descontado automaticamente pelos pedidos enviados.
+- [x] Saldo exibido ao cliente apenas para produtos com estoque informado.
+- [x] Limite integrado aos botões +/− e à digitação manual.
+- [x] Mensagem ao atingir o estoque máximo disponível.
+- [x] Erro de estoque preserva os demais itens do pedido.
+- [x] Operador visualiza estoque, quantidade já pedida e saldo.
+- [x] Rodapé com créditos da PREMIUM SOFTWARE LTDA.

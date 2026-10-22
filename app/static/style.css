@@ -75,3 +75,9 @@
 .qty-step-btn:hover{background:#dfeee2}.qty-step-btn:active{transform:translateY(1px);background:#d3e8d7}.qty-step-btn:disabled{opacity:.45;cursor:not-allowed;transform:none}
 .qty-help{display:block;margin-top:.25rem;color:var(--muted);font-size:.74rem;font-weight:500;line-height:1.25}
 @media(max-width:620px){.qty-stepper{grid-template-columns:54px minmax(90px,1fr) 54px;width:100%}.qty-step-btn,.qty-step-input{height:54px!important}.qty-step-btn{font-size:1.9rem}.qty-step-input{font-size:1.35rem!important}}
+
+/* V4.6 - estoque restante, aviso de limite e créditos do sistema */
+.stock-remaining{display:inline-flex;align-items:center;gap:.28rem;margin-top:.28rem;padding:.3rem .55rem;border-radius:.5rem;background:#eef7ef;border:1px solid #c7ddcb;color:#245b31;font-size:.82rem}
+.stock-remaining b{font-weight:800}.qty-limit-message{display:none;margin-top:.35rem;padding:.38rem .52rem;border-radius:.5rem;background:#fff4d8;border:1px solid #e9c76a;color:#6c5000;font-size:.79rem;font-weight:700;line-height:1.25}.qty-limit-message.show{display:block}.qty-step-btn[aria-disabled="true"]{background:#f4f4f4;color:#748079;border-color:#cbd2cd}
+.software-credit{margin:2rem auto 1rem;padding:1rem 1.25rem;text-align:center;color:#66716a;font-size:.72rem;line-height:1.45;border-top:1px solid #d9e0da;max-width:980px}.software-credit strong,.software-credit span{display:block}.software-credit strong{color:#465149;font-size:.76rem;letter-spacing:.01em}
+@media(max-width:620px){.stock-remaining{font-size:.88rem}.qty-limit-message{font-size:.86rem}.software-credit{margin:1.2rem .75rem .75rem;padding:.85rem .5rem;font-size:.68rem}}

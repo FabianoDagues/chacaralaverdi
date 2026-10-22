@@ -116,3 +116,13 @@ Administradores têm a tela **Manutenção** para apagar movimentações de test
 ## V4.5 - romaneio PDF
 - Romaneios agora são gerados como PDF A4 no servidor, eliminando diferenças de paginação entre PC, Android e iPhone.
 - Até 10 itens: 1ª e 2ª via na mesma folha. Pedidos maiores: vias em páginas separadas, sem corte de linhas.
+
+## Versão 4.6
+- Créditos da PREMIUM SOFTWARE LTDA no rodapé do sistema.
+- Estoque opcional por produto/dia com saldo atualizado conforme pedidos enviados.
+- Cliente vê apenas o saldo restante quando o estoque é controlado.
+- Botões +/− respeitam o saldo máximo e avisam ao atingir o limite.
+- Digitação manual também respeita o estoque disponível.
+- Em erro de estoque, somente o produto sem saldo é zerado; os demais itens digitados são preservados.
+- Disponibilidade mostra Estoque, Já pedido e Saldo para o operador.
+- Proteção adicional contra pedidos simultâneos acima do estoque.
