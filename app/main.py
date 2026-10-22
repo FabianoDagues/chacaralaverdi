@@ -31,6 +31,7 @@ from .models import (Company, User, Product, Client, Availability, Order, OrderI
     Receipt, ReceiptItem, ReminderSettings, ReminderLog)
 from .security import hash_password, verify_password, generate_reset_token, hash_token
 from .utils import now_local, today_local, tomorrow_local, brl, qty, parse_decimal, whatsapp_link
+from .pdf_reports import generate_romaneios_pdf
 
 BASE_DIR = Path(__file__).resolve().parent
 app = FastAPI(title=APP_NAME)
@@ -1294,7 +1295,9 @@ def order_romaneio(order_id:int,request:Request,db:Session=Depends(get_db)):
     if order.delivery_date != tomorrow_local():
         flash(request, f'Impressão bloqueada: romaneios só podem ser impressos para pedidos com entrega em {tomorrow_local().strftime("%d/%m/%Y")} (dia seguinte).', 'warning')
         return RedirectResponse(f'/admin/pedidos/{order.id}',303)
-    return templates.TemplateResponse('romaneio.html',base_context(request,operator=operator,orders=[order],print_title=f'Romaneio {order.number}'))
+    pdf = generate_romaneios_pdf([order], operator.company)
+    filename = f'romaneio-{order.number}.pdf'
+    return Response(content=pdf, media_type='application/pdf', headers={'Content-Disposition': f'inline; filename=\"{filename}\"', 'Cache-Control': 'no-store'})
 
 
 @app.get('/admin/romaneios')
@@ -1306,7 +1309,9 @@ def all_romaneios(request:Request,target:str|None=None,db:Session=Depends(get_db
         flash(request, f'Impressão bloqueada: para evitar enganos na entrega, só é permitido imprimir pedidos de {tomorrow_local().strftime("%d/%m/%Y")} (dia seguinte).', 'warning')
         return RedirectResponse(f'/admin?target={target_date.isoformat()}',303)
     orders=db.scalars(select(Order).options(joinedload(Order.client),joinedload(Order.items).joinedload(OrderItem.product)).where(Order.company_id==operator.company_id, Order.delivery_date==target_date,Order.status=='SUBMITTED').order_by(Order.client_id)).unique().all()
-    return templates.TemplateResponse('romaneio.html',base_context(request,operator=operator,orders=orders,print_title=f'Romaneios {target_date.strftime("%d/%m/%Y")}'))
+    pdf = generate_romaneios_pdf(orders, operator.company)
+    filename = f'romaneios-{target_date.isoformat()}.pdf'
+    return Response(content=pdf, media_type='application/pdf', headers={'Content-Disposition': f'inline; filename=\"{filename}\"', 'Cache-Control': 'no-store'})
 
 # ------------------------ CONTAS A RECEBER ------------------------
 @app.get('/admin/receber')

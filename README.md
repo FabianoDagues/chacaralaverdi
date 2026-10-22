@@ -111,3 +111,8 @@ Administradores têm a tela **Manutenção** para apagar movimentações de test
 - Até 10 itens: 1ª e 2ª via permanecem juntas na mesma folha A4.
 - Acima de 10 itens: 1ª via ocupa uma página e 2ª via ocupa a página seguinte, mantendo fonte 18 e evitando cortes.
 - Cada pedido começa em sua própria página e nunca é misturado com outro cliente.
+
+
+## V4.5 - romaneio PDF
+- Romaneios agora são gerados como PDF A4 no servidor, eliminando diferenças de paginação entre PC, Android e iPhone.
+- Até 10 itens: 1ª e 2ª via na mesma folha. Pedidos maiores: vias em páginas separadas, sem corte de linhas.
