@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#2f6f3e">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="icon" href="/static/icons/icon-192.png">
+  <link rel="stylesheet" href="/static/style.css?v=4.6">
+  <title>{% block title %}{{ app_name }}{% endblock %}</title>
+  {% block head %}{% endblock %}
+</head>
+<body class="{% if operator or client_session %}has-sidebar{% endif %}">
+{% if operator %}
+  <button class="sidebar-mobile-toggle no-print" type="button" data-sidebar-toggle aria-label="Abrir menu" aria-expanded="false">☰</button>
+  <div class="sidebar-overlay no-print" data-sidebar-overlay></div>
+  <aside class="sidebar no-print" data-sidebar>
+    <div class="sidebar-brand-wrap">
+      <a class="sidebar-brand" href="/admin">
+        {% if company and company.logo_data %}<img class="sidebar-logo" src="/empresa/logo" alt="Logo">{% else %}<span class="sidebar-logo-fallback">🌱</span>{% endif %}
+        <span><strong>{{ company.trade_name if company else app_name }}</strong><small>Painel da operação</small></span>
+      </a>
+      <button class="sidebar-close" type="button" data-sidebar-toggle aria-label="Fechar menu">×</button>
+    </div>
+    <nav class="sidebar-nav">
+      <a class="{% if request.url.path == '/admin' %}active{% endif %}" href="/admin"><span>▦</span> Dashboard</a>
+      <a class="{% if request.url.path.startswith('/admin/disponibilidade') %}active{% endif %}" href="/admin/disponibilidade"><span>✓</span> Disponibilidade</a>
+      <a class="{% if request.url.path.startswith('/admin/produtos') %}active{% endif %}" href="/admin/produtos"><span>▣</span> Produtos</a>
+      <a class="{% if request.url.path.startswith('/admin/clientes') %}active{% endif %}" href="/admin/clientes"><span>👥</span> Clientes</a>
+      <a class="{% if request.url.path.startswith('/admin/receber') %}active{% endif %}" href="/admin/receber"><span>R$</span> Contas a receber</a>
+      <a class="{% if request.url.path.startswith('/admin/lembretes') %}active{% endif %}" href="/admin/lembretes"><span>◷</span> Lembretes</a>
+
+      <div class="sidebar-section-title">Administração</div>
+      <a class="{% if request.url.path.startswith('/admin/empresa') %}active{% endif %}" href="/admin/empresa"><span>⌂</span> Empresa</a>
+      <a class="{% if request.url.path.startswith('/admin/usuarios') %}active{% endif %}" href="/admin/usuarios"><span>⚙</span> Operadores</a>
+      {% if operator.role == 'ADMIN' %}<a class="{% if request.url.path.startswith('/admin/manutencao') %}active{% endif %}" href="/admin/manutencao"><span>⚠</span> Manutenção</a>{% endif %}
+
+      <div class="sidebar-section-title">Relatórios</div>
+      <a class="{% if request.url.path.startswith('/admin/relatorios/colheita') %}active{% endif %}" href="/admin/relatorios/colheita"><span>🌿</span> Total para colher</a>
+      <a class="{% if request.url.path.startswith('/admin/relatorios/vendas') %}active{% endif %}" href="/admin/relatorios/vendas"><span>▤</span> Vendas</a>
+      <a class="{% if request.url.path.startswith('/admin/relatorios/inadimplentes') %}active{% endif %}" href="/admin/relatorios/inadimplentes"><span>!</span> Inadimplentes</a>
+      <a class="{% if request.url.path.startswith('/admin/relatorios/mais-vendidos') %}active{% endif %}" href="/admin/relatorios/mais-vendidos"><span>★</span> Mais vendidos</a>
+      <a class="{% if request.url.path.startswith('/admin/relatorios/diagnostico') %}active{% endif %}" href="/admin/relatorios/diagnostico"><span>◉</span> Diagnóstico</a>
+    </nav>
+    <div class="sidebar-footer">
+      <div><strong>{{ operator.name }}</strong><small>{{ operator.role }}</small></div>
+      <a class="sidebar-logout" href="/logout">Sair</a>
+    </div>
+  </aside>
+{% elif client_session %}
+  <button class="sidebar-mobile-toggle no-print" type="button" data-sidebar-toggle aria-label="Abrir menu" aria-expanded="false">☰</button>
+  <div class="sidebar-overlay no-print" data-sidebar-overlay></div>
+  <aside class="sidebar client-sidebar no-print" data-sidebar>
+    <div class="sidebar-brand-wrap">
+      <a class="sidebar-brand" href="/cliente/pedido">
+        {% if company and company.logo_data %}<img class="sidebar-logo" src="/empresa/logo" alt="Logo">{% else %}<span class="sidebar-logo-fallback">🌱</span>{% endif %}
+        <span><strong>{{ company.trade_name if company else app_name }}</strong><small>Área do cliente</small></span>
+      </a>
+      <button class="sidebar-close" type="button" data-sidebar-toggle aria-label="Fechar menu">×</button>
+    </div>
+    <nav class="sidebar-nav">
+      <a class="{% if request.url.path == '/cliente/pedido' %}active{% endif %}" href="/cliente/pedido"><span>🛒</span> Fazer pedido</a>
+      <a class="{% if request.url.path.startswith('/cliente/historico') or request.url.path.startswith('/cliente/pedidos/') %}active{% endif %}" href="/cliente/historico"><span>▤</span> Meus pedidos</a>
+    </nav>
+    <div class="sidebar-footer">
+      <div><strong>{{ client_session.trade_name or client_session.company_name }}</strong><small>Cliente</small></div>
+      <a class="sidebar-logout" href="/cliente/logout">Sair</a>
+    </div>
+  </aside>
+{% endif %}
+
+<div class="app-shell">
+  {% if operator or client_session %}
+  <header class="mobile-appbar no-print">
+    <button type="button" data-sidebar-toggle aria-label="Abrir menu">☰</button>
+    <div class="mobile-appbar-brand">
+      {% if company and company.logo_data %}<img src="/empresa/logo" alt="Logo">{% endif %}
+      <strong>{{ company.trade_name if company else app_name }}</strong>
+    </div>
+  </header>
+  {% endif %}
+  <main class="container">
+    {% if company %}<div class="print-only print-company-header">{% if company.logo_data %}<img src="/empresa/logo" alt="Logo">{% endif %}<div><b>{{ company.trade_name }}</b><br><span>{{ company.legal_name }}</span><br><span>{{ company.document or '' }} · {{ company.phone or company.whatsapp or '' }}</span></div></div>{% endif %}
+    {% if flash %}<div class="alert {{ flash.kind }}">{{ flash.message }}</div>{% endif %}
+    {% block content %}{% endblock %}
+  </main>
+  <footer class="software-credit no-print">
+    <strong>Sistema desenvolvido por PREMIUM SOFTWARE LTDA</strong>
+    <span>RUA BEM TE VI, 1973 CONJUNTO SANENGE - MARINGA - PR</span>
+    <span>Fone: 44 99875-7636</span>
+  </footer>
+</div>
+<script src="/static/app.js?v=4.6"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

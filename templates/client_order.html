@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+{% block title %}Meu pedido{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>Pedido para {{ target_date.strftime('%d/%m/%Y') }}</h1>
+    <p>{{ client.trade_name or client.company_name }}</p>
+  </div>
+  {% if order %}<a class="btn secondary" href="/cliente/pedidos/{{ order.id }}">Ver pedido {{ order.number }}</a>{% endif %}
+</div>
+
+{% if order %}
+<div class="alert info strong-alert">
+  <b>Pedido já enviado.</b> Você pode alterar as quantidades abaixo e clicar em <b>Atualizar pedido</b> enquanto o prazo estiver aberto. As novas quantidades substituirão o pedido atual.
+</div>
+{% else %}
+<div class="order-not-created">
+  <div class="order-not-created-icon">🛒</div>
+  <div><b>Nenhum pedido foi criado ainda.</b><br><span>Selecione as quantidades desejadas. O pedido só será registrado quando você clicar em <b>Enviar pedido</b>.</span></div>
+</div>
+{% endif %}
+
+{% if block_reason %}
+<div class="alert error"><b>Pedidos bloqueados.</b> {{ block_reason }} Entre em contato com a horta.</div>
+{% elif not order_open %}
+<div class="alert warning">O prazo para pedidos do próximo dia encerrou às {{ cutoff_hour }}h.</div>
+{% endif %}
+
+{% if not avail %}
+<div class="alert warning">Ainda não há produtos liberados para {{ target_date.strftime('%d/%m/%Y') }}.</div>
+{% else %}
+<form method="post">
+  <div class="product-order-grid">
+  {% for a in avail %}
+    <article class="product-card">
+      <div>
+        <span class="category">{{ a.product.category or 'Produto' }}</span>
+        <h3>{{ a.product.name }}</h3>
+        <p>{{ (a.price_override if a.price_override is not none else a.product.default_price)|brl }} / {{ a.product.unit }}</p>
+        {% if a.stock_limit is not none %}
+          {% set remaining = remaining_by_product.get(a.product_id, 0) %}
+          <div class="stock-remaining"><b>Estoque restante:</b> {{ remaining|qty }} {{ a.product.unit }}</div>
+        {% endif %}
+      </div>
+      <label>Quantidade
+        {% set max_qty = remaining_by_product.get(a.product_id) if a.stock_limit is not none else none %}
+        <div class="qty-stepper" data-qty-stepper {% if max_qty is not none %}data-max-qty="{{ max_qty|int }}" data-unit="{{ a.product.unit }}"{% endif %}>
+          <button type="button" class="qty-step-btn" data-qty-action="minus" aria-label="Diminuir quantidade de {{ a.product.name }}" {% if block_reason or not order_open %}disabled{% endif %}>−</button>
+          <input class="qty-step-input" type="text" inputmode="numeric" pattern="[0-9]*" autocomplete="off" name="qty_{{ a.product_id }}" value="{{ quantities.get(a.product_id, 0)|int }}" aria-label="Quantidade de {{ a.product.name }}" {% if block_reason or not order_open %}disabled{% endif %}>
+          <button type="button" class="qty-step-btn" data-qty-action="plus" aria-label="Aumentar quantidade de {{ a.product.name }}" {% if block_reason or not order_open %}disabled{% endif %}>+</button>
+        </div>
+        <small class="qty-help">Use −/+ ou toque no número para digitar outra quantidade.</small>
+        {% if max_qty is not none %}<small class="qty-limit-message" data-qty-limit-message aria-live="polite"></small>{% endif %}
+      </label>
+    </article>
+  {% endfor %}
+  </div>
+  <label>Observação<textarea name="notes" rows="3" {% if block_reason or not order_open %}disabled{% endif %}>{{ notes_value if notes_value is defined else (order.notes if order and order.notes else '') }}</textarea></label>
+  {% if not block_reason and order_open %}
+  <div class="sticky-actions"><button class="btn primary">{{ 'Atualizar pedido' if order else 'Enviar pedido' }}</button></div>
+  {% endif %}
+</form>
+{% endif %}
+{% endblock %}

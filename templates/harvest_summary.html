@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>{{ print_title }}</title>
+  <link rel="stylesheet" href="/static/style.css?v=3.9">
+  <style>
+    /* Estilo crítico do relatório operacional: logo pequena e grade com letra grande. */
+    @page { size: A4 portrait; margin: 9mm; }
+    .harvest-toolbar{max-width:210mm;margin:1rem auto;display:flex;gap:.5rem}
+    .harvest-lock{max-width:210mm;margin:0 auto 1rem}
+    .harvest-sheet{max-width:192mm;min-height:270mm;margin:0 auto;background:#fff;border:1px solid #777;padding:7mm 8mm;box-shadow:0 5px 20px rgba(0,0,0,.08)}
+    .harvest-header{display:flex;align-items:center;gap:5mm;border-bottom:3px solid #1f2d23;padding-bottom:3mm;margin-bottom:3mm}
+    .harvest-logo{width:22mm!important;height:16mm!important;max-width:22mm!important;max-height:16mm!important;object-fit:contain!important;flex:0 0 22mm}
+    .harvest-heading{flex:1}
+    .harvest-heading h1{font-size:26px;letter-spacing:.025em;margin:0 0 1mm;line-height:1.05}
+    .harvest-date{font-size:19px}
+    .harvest-company{font-size:14px;font-weight:800;margin-top:.5mm}
+    .harvest-meta{display:flex;gap:7mm;flex-wrap:wrap;background:#eef5ef;border:1px solid #cfdccf;padding:2.5mm 3mm;margin-bottom:3mm;font-size:15px}
+    .harvest-table{width:100%;border-collapse:collapse;table-layout:fixed;font-family:"Segoe UI",Arial,Helvetica,sans-serif}
+    .harvest-table th{background:#173f24;color:#fff;border:2px solid #173f24;font-size:13px;padding:2.5mm 2mm;text-transform:uppercase;letter-spacing:.03em}
+    .harvest-table td{border:2px solid #8c968e;padding:3.2mm 2.7mm;vertical-align:middle;line-height:1.05}
+    .harvest-product{font-size:22px!important;font-weight:500!important;line-height:1.05!important}
+    .harvest-qty{font-size:24px!important;font-weight:600!important;text-align:center!important;white-space:nowrap}
+    .harvest-table td:nth-child(3){font-size:17px!important;font-weight:800;text-align:center}
+    .harvest-check{font-size:22px!important;text-align:center;font-weight:400}
+    .harvest-check-col{width:22mm}.harvest-unit-col{width:19mm}.harvest-qty-col{width:36mm}
+    .harvest-empty{border:2px dashed #aaa;padding:18mm;text-align:center;font-size:21px;font-weight:700}
+    .harvest-footer{margin-top:5mm;border-top:1px solid #aaa;padding-top:3mm;font-size:14px;font-weight:650}
+    @media(max-width:620px){
+      .harvest-sheet{min-height:auto;padding:4mm}
+      .harvest-logo{width:18mm!important;height:13mm!important;max-width:18mm!important;max-height:13mm!important}
+      .harvest-heading h1{font-size:23px}
+      .harvest-product{font-size:19px!important}.harvest-qty{font-size:20px!important}
+    }
+    @media print{
+      body{background:#fff!important;margin:0!important}
+      .no-print{display:none!important}
+      .harvest-sheet{max-width:none!important;min-height:0!important;border:0!important;box-shadow:none!important;margin:0!important;padding:0!important}
+      .harvest-logo{width:22mm!important;height:16mm!important;max-width:22mm!important;max-height:16mm!important}
+      .harvest-table thead{display:table-header-group}
+      .harvest-table tr{break-inside:avoid;page-break-inside:avoid}
+      .harvest-product{font-size:22px!important;font-weight:500!important}.harvest-qty{font-size:24px!important;font-weight:600!important}
+    }
+  </style>
+</head>
+<body class="print-body harvest-print-body">
+  <div class="print-toolbar harvest-toolbar no-print">
+    <a class="btn secondary" href="/admin?target={{ target_date.isoformat() }}">Voltar ao dashboard</a>
+    {% if can_print %}<button class="btn primary" onclick="window.print()">🖨 Imprimir total para colher</button>{% else %}<span class="btn primary disabled" aria-disabled="true">🖨 Impressão bloqueada</span>{% endif %}
+  </div>
+
+  {% if not can_print %}
+  <div class="print-lock harvest-lock no-print">
+    <span>⚠️</span>
+    <div><strong>Consulta sem impressão</strong><span>Para evitar enganos na colheita, a impressão é liberada somente para os pedidos de <b>{{ tomorrow.strftime('%d/%m/%Y') }}</b> (dia seguinte).</span></div>
+  </div>
+  {% endif %}
+
+  <main class="harvest-sheet">
+    <header class="harvest-header">
+      {% if company and company.logo_data %}<img class="harvest-logo" src="/empresa/logo" alt="Logo">{% endif %}
+      <div class="harvest-heading">
+        <h1>TOTAL PARA COLHER</h1>
+        <div class="harvest-date">Entrega: <strong>{{ target_date.strftime('%d/%m/%Y') }}</strong></div>
+        <div class="harvest-company">{{ company.trade_name if company else app_name }}</div>
+      </div>
+    </header>
+
+    <div class="harvest-meta">
+      <span><b>{{ orders_count }}</b> pedido{{ '' if orders_count == 1 else 's' }}</span>
+      <span><b>{{ summary_rows|length }}</b> produto{{ '' if summary_rows|length == 1 else 's' }} diferente{{ '' if summary_rows|length == 1 else 's' }}</span>
+    </div>
+
+    {% if summary_rows %}
+    <table class="harvest-table">
+      <thead><tr><th class="harvest-check-col">Separado</th><th>Produto</th><th class="harvest-unit-col">Un.</th><th class="harvest-qty-col">Quantidade</th></tr></thead>
+      <tbody>
+      {% for r in summary_rows %}
+        <tr><td class="harvest-check">□</td><td class="harvest-product">{{ r[0] }}</td><td>{{ r[1] }}</td><td class="harvest-qty">{{ r[2]|qty }}</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <div class="harvest-empty">Nenhum produto pedido para esta data.</div>
+    {% endif %}
+
+    <footer class="harvest-footer">Gerado em {{ today.strftime('%d/%m/%Y') }} · Conferência: ____________________________________________</footer>
+  </main>
+
+  {% if print_mode and can_print %}<script>window.addEventListener('load',()=>setTimeout(()=>window.print(),250));</script>{% endif %}
+</body>
+</html>

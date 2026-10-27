@@ -1,0 +1,23 @@
+{% extends 'base.html' %}{% block title %}Manutenção{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>Manutenção do sistema</h1><p>Ferramentas administrativas para preparação da base de produção.</p></div></div>
+<div class="panel danger-zone">
+  <h2>Limpar movimentação de testes</h2>
+  <p>Esta rotina é indicada para o momento em que os testes terminaram e o sistema será entregue para uso real.</p>
+  <div class="reset-grid">
+    <div><span>Clientes de teste</span><strong>{{ counts.clients }}</strong></div>
+    <div><span>Disponibilidades</span><strong>{{ counts.availability }}</strong></div>
+    <div><span>Pedidos</span><strong>{{ counts.orders }}</strong></div>
+    <div><span>Contas a receber</span><strong>{{ counts.receivables }}</strong></div>
+    <div><span>Recibos</span><strong>{{ counts.receipts }}</strong></div>
+    <div><span>Lembretes enviados</span><strong>{{ counts.reminders }}</strong></div>
+  </div>
+  <div class="alert warning"><b>Será apagado:</b> clientes cadastrados nos testes, disponibilidade diária, pedidos, itens, contas a receber, recibos, redefinições de senha e histórico de lembretes.</div>
+  <div class="alert success"><b>Será preservado:</b> cadastro da empresa e logo, produtos, operadores/usuários e configurações do sistema.</div>
+  <form method="post" action="/admin/manutencao/zerar" class="reset-form" onsubmit="return confirm('ATENÇÃO: esta operação é irreversível. Deseja realmente apagar a base de testes?')">
+    <label>Verificação de segurança<input name="confirmation" placeholder="Digite: ZERAR BANCO" required autocomplete="off"><small>Digite exatamente <b>ZERAR BANCO</b>.</small></label>
+    <label>Sua senha de administrador<input type="password" name="password" required autocomplete="current-password"></label>
+    <button class="btn danger">Apagar dados de teste definitivamente</button>
+  </form>
+</div>
+{% endblock %}

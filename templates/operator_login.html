@@ -1,0 +1,2 @@
+{% extends 'base.html' %}{% block title %}Login do operador{% endblock %}
+{% block content %}{% if company and company.logo_data %}<div class="login-logo"><img src="/empresa/logo" alt="Logo da empresa"></div>{% endif %}<div class="auth-card"><h1>Login do operador</h1><form method="post"><label>E-mail<input type="email" name="email" required autofocus></label><label>Senha<input type="password" name="password" required></label><button class="btn primary full">Entrar</button></form><p class="muted center"><a href="/cliente/login">Acesso do cliente</a></p></div>{% endblock %}

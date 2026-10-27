@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% block title %}Disponibilidade{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>Produtos disponíveis</h1>
+    <p>Defina o que o cliente poderá pedir em uma data específica ou aplique produtos para um período inteiro.</p>
+  </div>
+</div>
+
+<div class="panel" style="margin-bottom:18px">
+  <h2 style="margin-top:0">Disponibilizar por período</h2>
+  <p class="muted">Exemplo: selecione Cebolinha e informe 20/10/2026 até 30/10/2026. O produto ficará disponível em todos os dias desse intervalo. Os demais produtos já configurados não serão apagados.</p>
+  <form method="post" action="/admin/disponibilidade/periodo">
+    <div class="filter-row">
+      <label>Data inicial<input type="date" name="period_start" value="{{ target_date.isoformat() }}" required></label>
+      <label>Data final<input type="date" name="period_end" value="{{ target_date.isoformat() }}" required></label>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Selecionar</th><th>Produto</th><th>Un.</th><th>Preço no período</th><th>Estoque por dia (opcional)</th></tr></thead>
+        <tbody>
+          {% for p in products %}
+          <tr>
+            <td><input class="big-check period-check" type="checkbox" name="period_product_{{ p.id }}"></td>
+            <td><b>{{ p.name }}</b><small>{{ p.category or '' }}</small></td>
+            <td>{{ p.unit }}</td>
+            <td><input class="small-input" name="period_price_{{ p.id }}" placeholder="padrão {{ p.default_price|brl }}"></td>
+            <td><input class="small-input" type="number" min="0" step="1" inputmode="numeric" name="period_stock_{{ p.id }}" placeholder="sem limite"></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <div class="form-actions" style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px">
+      <button type="button" class="btn secondary" onclick="document.querySelectorAll('.period-check').forEach(x=>x.checked=true)">Selecionar todos</button>
+      <button type="button" class="btn secondary" onclick="document.querySelectorAll('.period-check').forEach(x=>x.checked=false)">Limpar seleção</button>
+      <button class="btn primary" name="period_action" value="add">Disponibilizar selecionados no período</button>
+      <button class="btn danger" name="period_action" value="remove" onclick="return confirm('Remover os produtos selecionados de todas as datas deste período?')">Remover selecionados do período</button>
+    </div>
+  </form>
+</div>
+
+<div class="panel">
+  <h2 style="margin-top:0">Editar um dia específico</h2>
+  <p class="muted">Se informar estoque, o saldo mostrado ao cliente será atualizado automaticamente conforme os pedidos forem entrando. Deixe o estoque vazio para vender sem limite informado.</p>
+  <form class="filter-row" method="get">
+    <label>Data de venda/entrega<input type="date" name="target" value="{{ target_date.isoformat() }}"></label>
+    <button class="btn secondary">Carregar</button>
+  </form>
+  <form method="post">
+    <input type="hidden" name="target_date" value="{{ target_date.isoformat() }}">
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Disponível</th><th>Produto</th><th>Un.</th><th>Preço do dia</th><th>Estoque do dia</th><th>Já pedido</th><th>Saldo</th></tr></thead>
+        <tbody>
+          {% for p in products %}{% set a=amap.get(p.id) %}
+          <tr>
+            <td><input class="big-check" type="checkbox" name="available_{{ p.id }}" {% if a %}checked{% endif %}></td>
+            <td><b>{{ p.name }}</b><small>{{ p.category or '' }}</small></td>
+            <td>{{ p.unit }}</td>
+            <td><input class="small-input" name="price_{{ p.id }}" value="{{ a.price_override if a and a.price_override is not none else p.default_price }}"></td>
+            <td><input class="small-input" type="number" min="0" step="1" inputmode="numeric" name="stock_{{ p.id }}" value="{{ a.stock_limit|int if a and a.stock_limit is not none else '' }}" placeholder="sem limite"></td>
+            <td>{% if a %}<b>{{ reserved_map.get(p.id, 0)|qty }}</b> {{ p.unit }}{% else %}—{% endif %}</td>
+            <td>{% if a and a.stock_limit is not none %}<b>{{ remaining_map.get(p.id, 0)|qty }}</b> {{ p.unit }}{% elif a %}<span class="muted">sem limite</span>{% else %}—{% endif %}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <div class="sticky-actions"><button class="btn primary">Salvar disponibilidade de {{ target_date.strftime('%d/%m/%Y') }}</button></div>
+  </form>
+</div>
+{% endblock %}
