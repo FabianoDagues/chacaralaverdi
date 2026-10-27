@@ -1147,13 +1147,38 @@ async def client_edit_post(client_id:int,request:Request,db:Session=Depends(get_
     c=db.get(Client,client_id)
     if not c or c.company_id != operator.company_id:raise HTTPException(404)
     form=await request.form()
-    c.company_name=form.get('company_name','').strip();c.trade_name=form.get('trade_name','').strip() or None;c.document=form.get('document','').strip() or None;c.contact_name=form.get('contact_name','').strip() or None;c.email=form.get('email','').strip().lower();c.phone=form.get('phone','').strip() or None;c.whatsapp=form.get('whatsapp','').strip() or None;c.address=form.get('address','').strip() or None;c.city=form.get('city','').strip() or None;c.state=form.get('state','').strip().upper() or None;c.zip_code=form.get('zip_code','').strip() or None;c.payment_terms_days=int(form.get('payment_terms_days') or 7);c.credit_limit=parse_decimal(form.get('credit_limit')) if form.get('credit_limit','').strip() else None;c.manual_blocked=form.get('manual_blocked')=='on';c.blocked_reason=form.get('blocked_reason','').strip() or None;c.is_active=form.get('is_active')=='on';c.reminder_enabled=form.get('reminder_enabled')=='on'
+    old_terms=int(c.payment_terms_days or 0)
+    try:
+        new_terms=max(0,min(365,int(form.get('payment_terms_days') or 0)))
+    except (TypeError,ValueError):
+        new_terms=old_terms
+    recalc_open=form.get('recalculate_open_due_dates')=='on'
+    c.company_name=form.get('company_name','').strip();c.trade_name=form.get('trade_name','').strip() or None;c.document=form.get('document','').strip() or None;c.contact_name=form.get('contact_name','').strip() or None;c.email=form.get('email','').strip().lower();c.phone=form.get('phone','').strip() or None;c.whatsapp=form.get('whatsapp','').strip() or None;c.address=form.get('address','').strip() or None;c.city=form.get('city','').strip() or None;c.state=form.get('state','').strip().upper() or None;c.zip_code=form.get('zip_code','').strip() or None;c.payment_terms_days=new_terms;c.credit_limit=parse_decimal(form.get('credit_limit')) if form.get('credit_limit','').strip() else None;c.manual_blocked=form.get('manual_blocked')=='on';c.blocked_reason=form.get('blocked_reason','').strip() or None;c.is_active=form.get('is_active')=='on';c.reminder_enabled=form.get('reminder_enabled')=='on'
     if form.get('password','').strip():
         if len(form.get('password'))<8:flash(request,'Nova senha deve ter no mínimo 8 caracteres.','error');return RedirectResponse(f'/admin/clientes/{client_id}/editar',303)
         c.password_hash=hash_password(form.get('password'))
+    recalculated=0
+    if recalc_open and new_terms != old_terms:
+        open_recs=db.scalars(select(Receivable).options(joinedload(Receivable.order)).where(Receivable.client_id==c.id,Receivable.company_id==operator.company_id,Receivable.status!='PAGO')).all()
+        for r in open_recs:
+            if receivable_outstanding(r) <= 0 or not r.order:
+                continue
+            r.due_date=r.order.delivery_date+timedelta(days=new_terms)
+            update_receivable_status(r)
+            recalculated+=1
     try:db.commit()
     except IntegrityError:db.rollback();flash(request,'E-mail já utilizado por outro cliente.','error');return RedirectResponse(f'/admin/clientes/{client_id}/editar',303)
-    flash(request,'Cliente atualizado.')
+    if recalculated:
+        reason=client_block_reason(db,c)
+        db.commit()
+        if reason:
+            flash(request,f'Cliente atualizado. {recalculated} título(s) em aberto tiveram o vencimento recalculado. O cliente ainda está bloqueado: {reason}','warning')
+        else:
+            flash(request,f'Cliente atualizado. {recalculated} título(s) em aberto tiveram o vencimento recalculado e o cliente está liberado para novos pedidos.','success')
+    elif recalc_open and new_terms == old_terms:
+        flash(request,'Cliente atualizado. O prazo não mudou, portanto nenhum vencimento foi recalculado.','warning')
+    else:
+        flash(request,'Cliente atualizado.')
     return RedirectResponse('/admin/clientes',303)
 
 
@@ -1448,6 +1473,34 @@ def receivables_client(client_id:int,request:Request,db:Session=Depends(get_db))
     open_recs=[r for r in recs if receivable_outstanding(r)>0]
     total=sum((receivable_outstanding(r) for r in open_recs),Decimal('0'))
     return templates.TemplateResponse('receivables_client.html',base_context(request,operator=operator,client=client,recs=open_recs,total=total,receivable_outstanding=receivable_outstanding))
+
+
+@app.post('/admin/receber/{receivable_id}/vencimento')
+def receivable_due_date_update(receivable_id:int, request:Request, due_date:str=Form(...), db:Session=Depends(get_db)):
+    operator=require_operator(request,db)
+    if not operator:return RedirectResponse('/login',303)
+    r=db.scalar(select(Receivable).options(joinedload(Receivable.client),joinedload(Receivable.order)).where(Receivable.id==receivable_id,Receivable.company_id==operator.company_id))
+    if not r:raise HTTPException(404)
+    try:
+        new_due=date.fromisoformat(due_date)
+    except (TypeError, ValueError):
+        flash(request,'Informe uma data de vencimento válida.','error')
+        return RedirectResponse(f'/admin/receber/cliente/{r.client_id}',303)
+    if receivable_outstanding(r) <= 0:
+        flash(request,'Este título já está pago e não precisa ter o vencimento alterado.','warning')
+        return RedirectResponse(f'/admin/receber/cliente/{r.client_id}',303)
+    old_due=r.due_date
+    r.due_date=new_due
+    update_receivable_status(r)
+    db.commit()
+    db.refresh(r)
+    reason=client_block_reason(db,r.client)
+    db.commit()
+    if reason:
+        flash(request,f'Vencimento alterado de {old_due.strftime("%d/%m/%Y")} para {new_due.strftime("%d/%m/%Y")}. O cliente ainda está bloqueado: {reason}','warning')
+    else:
+        flash(request,f'Vencimento alterado para {new_due.strftime("%d/%m/%Y")}. Cliente liberado para novos pedidos.','success')
+    return RedirectResponse(f'/admin/receber/cliente/{r.client_id}',303)
 
 
 @app.post('/admin/receber/{receivable_id}/pagamento')

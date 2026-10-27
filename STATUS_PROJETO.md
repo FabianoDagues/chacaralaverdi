@@ -76,3 +76,8 @@ Atualizações: romaneio em duas vias por pedido, nova ordem de colunas e dispon
 - [x] Erro de estoque preserva os demais itens do pedido.
 - [x] Operador visualiza estoque, quantidade já pedida e saldo.
 - [x] Rodapé com créditos da PREMIUM SOFTWARE LTDA.
+
+
+### V4.8
+- Prorrogação individual de vencimento no Contas a Receber.
+- Recalculo opcional de títulos em aberto ao alterar prazo do cliente.

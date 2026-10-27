@@ -126,3 +126,10 @@ Administradores têm a tela **Manutenção** para apagar movimentações de test
 - Em erro de estoque, somente o produto sem saldo é zerado; os demais itens digitados são preservados.
 - Disponibilidade mostra Estoque, Já pedido e Saldo para o operador.
 - Proteção adicional contra pedidos simultâneos acima do estoque.
+
+
+## Versão 4.8
+
+- Prorrogação de vencimento visível nas contas em aberto.
+- Recalculo opcional dos vencimentos em aberto ao alterar o prazo de pagamento do cliente.
+- Contas pagas nunca são recalculadas.
